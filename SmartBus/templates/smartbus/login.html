@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div id="loginPage" class="page active">
+                <h1>SmartBus Web+</h1>
+                <h3>Welcome Back</h3>
+                <p class="subtitle">Sign in to your account</p>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email">
+                        <span class="error-message" id="loginEmailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                        <span class="password-toggle" onclick="togglePassword('loginPassword')">👁️</span>
+                        <span class="error-message" id="loginPasswordError"></span>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+
+                    <button type="submit" class="btn">Sign In</button>
+                </form>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <div class="switch-page">
+                    Don't have an account? <a href="{% url 'register' %}">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/login.js' %}"></script>
+</body>
+</html>

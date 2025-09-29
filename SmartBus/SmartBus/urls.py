@@ -16,7 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.shortcuts import redirect
+from SmartBusWeb import views
+
+# Function to redirect root to login
+def redirect_to_login(request):
+    return redirect('login')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', redirect_to_login, name='home'),  # Root URL redirects to login
+    path('login/', views.login_view, name="login"),
+    path('register/', views.register_view, name="register"),
 ]
