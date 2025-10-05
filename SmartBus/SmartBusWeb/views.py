@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout
 
 def login_view(request):
@@ -20,7 +20,12 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect("dashboard")
+            # 👇 check if admin or staff
+            # superuser: admin, admin@gmail.com, smartbus.12345
+            if user.is_staff or user.is_superuser:
+                return redirect("admin_dashboard")
+            else:
+                return redirect("dashboard")
         else:
             messages.error(request, "Invalid email or password")
 
@@ -55,3 +60,11 @@ def dashboard_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+def is_admin(user):
+    return user.is_authenticated and user.is_staff  # or user.is_superuser
+
+@login_required
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    return render(request, 'smartbus/admin_dashboard.html')

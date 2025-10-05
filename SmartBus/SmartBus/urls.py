@@ -30,4 +30,5 @@ urlpatterns = [
     path('register/', views.register_view, name="register"),
     path("dashboard/", views.dashboard_view, name="dashboard"),  # new
     path("logout/", views.logout_view, name="logout"),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard')
 ]
