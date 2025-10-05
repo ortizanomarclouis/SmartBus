@@ -28,4 +28,6 @@ urlpatterns = [
     path('', redirect_to_login, name='home'),  # Root URL redirects to login
     path('login/', views.login_view, name="login"),
     path('register/', views.register_view, name="register"),
+    path("dashboard/", views.dashboard_view, name="dashboard"),  # new
+    path("logout/", views.logout_view, name="logout"),
 ]

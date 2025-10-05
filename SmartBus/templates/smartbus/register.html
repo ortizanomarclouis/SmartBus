@@ -19,22 +19,25 @@
                     Account created successfully! Redirecting to login...
                 </div>
 
-                <form id="registerForm">
+                <!-- Updated form -->
+                <form id="registerForm" method="post" action="">
+                    {% csrf_token %}
+
                     <div class="form-group">
-                        <label for="registerName">Full Name</label>
-                        <input type="text" id="registerName" placeholder="Enter your full name">
+                        <label for="registerName">Username</label>
+                        <input type="text" id="registerName" name="username" placeholder="Enter your username">
                         <span class="error-message" id="registerNameError"></span>
                     </div>
 
                     <div class="form-group">
                         <label for="registerEmail">Email</label>
-                        <input type="email" id="registerEmail" placeholder="Enter your email">
+                        <input type="email" id="registerEmail" name="email" placeholder="Enter your email">
                         <span class="error-message" id="registerEmailError"></span>
                     </div>
 
                     <div class="form-group">
                         <label for="registerPassword">Password</label>
-                        <input type="password" id="registerPassword" placeholder="Create a password">
+                        <input type="password" id="registerPassword" name="password1" placeholder="Create a password">
                         <span class="password-toggle" onclick="togglePassword('registerPassword')">👁️</span>
                         <div class="password-strength">
                             <div class="password-strength-bar" id="strengthBar"></div>
@@ -44,13 +47,13 @@
 
                     <div class="form-group">
                         <label for="registerConfirmPassword">Confirm Password</label>
-                        <input type="password" id="registerConfirmPassword" placeholder="Confirm your password">
+                        <input type="password" id="registerConfirmPassword" name="password2" placeholder="Confirm your password">
                         <span class="password-toggle" onclick="togglePassword('registerConfirmPassword')">👁️</span>
                         <span class="error-message" id="registerConfirmPasswordError"></span>
                     </div>
 
                     <div class="checkbox-group">
-                        <input type="checkbox" id="agreeTerms">
+                        <input type="checkbox" id="agreeTerms" name="agreeTerms">
                         <label for="agreeTerms">I agree to the Terms & Conditions</label>
                     </div>
                     <span class="error-message" id="termsError"></span>

@@ -1,12 +1,7 @@
-
-const users = JSON.parse(localStorage.getItem("users")) || [];
-
-
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     input.type = input.type === 'password' ? 'text' : 'password';
 }
-
 
 function showError(inputId, message) {
     const input = document.getElementById(inputId);
@@ -25,19 +20,16 @@ function clearError(inputId) {
     errorElement.classList.remove('show');
 }
 
-
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
 }
 
-
+// submit using POST to Django
 document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    let isValid = true;
-
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
+    let isValid = true;
 
     if (email === '') {
         showError('loginEmail', 'Email is required');
@@ -56,13 +48,5 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         clearError('loginPassword');
     }
 
-    if (isValid) {
-        const user = users.find(u => u.email === email && u.password === password);
-        if (user) {
-            alert(`Welcome back, ${user.name}! 🎉`);
-            document.getElementById('loginForm').reset();
-        } else {
-            showError('loginPassword', 'Invalid email or password');
-        }
-    }
+    if (!isValid) e.preventDefault(); // let Django handle POST if valid
 });

@@ -1,12 +1,7 @@
-
-const users = JSON.parse(localStorage.getItem("users")) || [];
-
-
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     input.type = input.type === 'password' ? 'text' : 'password';
 }
-
 
 function showError(inputId, message) {
     const input = document.getElementById(inputId);
@@ -39,10 +34,7 @@ function checkPasswordStrength(password) {
     if (!strengthBar) return;
 
     strengthBar.className = 'password-strength-bar';
-    
-    if (password.length === 0) {
-        return;
-    }
+    if (password.length === 0) return;
 
     let strength = 0;
     if (password.length >= 8) strength++;
@@ -59,9 +51,8 @@ function checkPasswordStrength(password) {
     }
 }
 
-
+// Handle form submission
 document.getElementById('registerForm').addEventListener('submit', function(e) {
-    e.preventDefault();
     let isValid = true;
 
     const name = document.getElementById('registerName').value.trim();
@@ -70,6 +61,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     const confirmPassword = document.getElementById('registerConfirmPassword').value;
     const agreeTerms = document.getElementById('agreeTerms').checked;
 
+    // Name validation
     if (name === '') {
         showError('registerName', 'Full name is required');
         isValid = false;
@@ -80,19 +72,18 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         clearError('registerName');
     }
 
+    // Email validation
     if (email === '') {
         showError('registerEmail', 'Email is required');
         isValid = false;
     } else if (!validateEmail(email)) {
         showError('registerEmail', 'Please enter a valid email');
         isValid = false;
-    } else if (users.find(u => u.email === email)) {
-        showError('registerEmail', 'Email already registered');
-        isValid = false;
     } else {
         clearError('registerEmail');
     }
 
+    // Password validation
     if (password === '') {
         showError('registerPassword', 'Password is required');
         isValid = false;
@@ -103,6 +94,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         clearError('registerPassword');
     }
 
+    // Confirm password validation
     if (confirmPassword === '') {
         showError('registerConfirmPassword', 'Please confirm your password');
         isValid = false;
@@ -113,6 +105,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         clearError('registerConfirmPassword');
     }
 
+    // Terms validation
     if (!agreeTerms) {
         const termsError = document.getElementById('termsError');
         termsError.textContent = 'You must agree to the terms';
@@ -122,21 +115,13 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         document.getElementById('termsError').classList.remove('show');
     }
 
-    if (isValid) {
-        users.push({ name, email, password });
-        localStorage.setItem("users", JSON.stringify(users));
-        
-        const successMsg = document.getElementById('successMessage');
-        successMsg.classList.add('show');
-        
-        setTimeout(() => {
-            successMsg.classList.remove('show');
-            window.location.href = "/login/";
-        }, 2000);
-    }
+    // Submit form only if all fields are valid
+    if (!isValid) {
+        e.preventDefault(); // stop submission only if invalid
+    } 
 });
 
-
+// Extra UX events
 document.getElementById('registerEmail').addEventListener('blur', function() {
     if (this.value.trim() && !validateEmail(this.value)) {
         showError('registerEmail', 'Please enter a valid email');
