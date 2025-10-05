@@ -2,16 +2,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome, {{ user.username }}!</h1>
-        <p>You are now logged in.</p>
-        <a href="{% url 'logout' %}">Logout</a>
+  <div class="container">
+    <h1>SmartBus Dashboard</h1>
+    <h2>Welcome, {{ user.username }}!</h2>
+    <p>You are now logged in and can access the SmartBus features.</p>
+
+    <a href="#" class="btn btn-primary">View Buses</a>
+    <a href="#" class="btn btn-secondary">View Routes</a>
+
+    <div class="logout-section">
+      <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
     </div>
+  </div>
 </body>
 </html>
