@@ -78,8 +78,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "SmartBus" / "static"]  # path to your static folder
-STATIC_ROOT = BASE_DIR / "SmartBus" / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]  
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # WhiteNoise: serve compressed and cached static files
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
