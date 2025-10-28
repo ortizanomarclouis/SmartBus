@@ -10,27 +10,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
   
-    <script src="{% static 'js/landing.js' %}"></script>
+    <script src="{% static 'js/dashboard/landing.js' %}"></script>
 
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
  
-    <link rel="stylesheet" href="{% static 'css/landing.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/dashboard/landing.css' %}" />
 </head>
 <body>
 
 
     <header class="site-header py-4 border-b border-gray-100 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <a class="text-xl font-bold text-primary-green" href="{% url 'public_landing' %}">SmartBus Web+</a>
+            <a class="text-xl font-bold text-primary-green" href="{% url 'core:public_landing' %}">SmartBus Web+</a>
             <nav class="flex space-x-4 items-center">
                 <a class="text-gray-700 hover:text-primary-blue transition" href="#">Features</a>
                 <a class="text-gray-700 hover:text-primary-blue transition" href="#">How it Works</a>
                 <a class="text-gray-700 hover:text-primary-blue transition" href="#">Operator</a>
                 <a class="text-gray-700 hover:text-primary-blue transition" href="#">Contact</a>
-                <a href="{% url 'dashboard' %}" class="btn btn-primary">Dashboard</a>
-                <a href="{% url 'logout' %}" class="px-3 py-1 text-sm font-semibold rounded-full border border-dark-gray text-dark-gray hover:bg-gray-100 transition duration-150">Logout</a>
+                <a href="{% url 'dashboard:dashboard' %}" class="btn btn-primary">Dashboard</a>
+                <a href="{% url 'login:logout' %}" class="px-3 py-1 text-sm font-semibold rounded-full border border-dark-gray text-dark-gray hover:bg-gray-100 transition duration-150">Logout</a>
             </nav>
         </div>
     </header>

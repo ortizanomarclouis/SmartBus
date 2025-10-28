@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/register.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/register/register.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login/login.css' %}">
 </head>
 <body>
     <div class="container">
@@ -58,7 +59,7 @@
                     </div>
                     <span class="error-message" id="termsError"></span>
 
-                    <button type="submit" class="btn" data-login-url="{% url 'login' %}">Create Account</button>
+                    <button type="submit" class="btn" data-login-url="{% url 'login:login' %}">Create Account</button>
                 </form>
 
                 <div class="divider">
@@ -66,12 +67,12 @@
                 </div>
 
                 <div class="switch-page">
-                    Already have an account? <a href="{% url 'login' %}">Sign In</a>
+                    Already have an account? <a href="{% url 'login:login' %}">Sign In</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="{% static 'js/register.js' %}"></script>
+    <script src="{% static 'js/register/register.js' %}"></script>
 </body>
 </html>

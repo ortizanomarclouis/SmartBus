@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SmartBus Web+</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login/login.css' %}">
 </head>
 <body>
     <div class="container">
@@ -44,7 +44,7 @@
                 </form>
 
                 <div class="switch-page">
-                    Don't have an account? <a href="{% url 'register' %}">Create Account</a>
+                    Don't have an account? <a href="{% url 'register:register' %}">Create Account</a>
                 </div>
             </div>
         </div>
@@ -134,6 +134,6 @@
         </div>
     </div>
 
-    <script src="{% static 'js/login.js' %}"></script>
+    <script src="{% static 'js/login/login.js' %}"></script>
 </body>
 </html>

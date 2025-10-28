@@ -1,14 +1,20 @@
 from django.contrib import admin
-from django.urls import path
-from SmartBusWeb import views
+from django.urls import path, include
+# REMOVE: from SmartBusWeb import views 
+# We now use include() for routing
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.public_landing_view, name='public_landing'),
-    path('register/', views.register_view, name='register'),
-    path('verify-otp/', views.verify_otp_view, name='verify_otp'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('landing/', views.landing_view, name='landing'),
-    path('dashboard/', views.dashboard_view, name='dashboard'),
+    
+    # 1. CORE (Public Entry) - Maps the root URL '' to the core app
+    path('', include('core.urls')), 
+    
+    # 2. AUTHENTICATION
+    # All login/register routes start with the path defined here
+    path('register/', include('register.urls')), 
+    path('login/', include('login.urls')),
+    
+    # 3. AUTHENTICATED CONTENT
+    # All authenticated routes start with 'app/'
+    path('app/', include('dashboard.urls')),
 ]

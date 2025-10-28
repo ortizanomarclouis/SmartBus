@@ -23,7 +23,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'SmartBus',
-    'SmartBusWeb'
+    'core',       # NEW
+    'login',      # NEW
+    'register',   # NEW
+    'dashboard', # NEW
 ]
 
 MIDDLEWARE = [
@@ -78,7 +81,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]  
+STATICFILES_DIRS = [
+    # Add the parent static directory to ensure Django searches inside it
+    BASE_DIR / "static", 
+] 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # WhiteNoise: serve compressed and cached static files

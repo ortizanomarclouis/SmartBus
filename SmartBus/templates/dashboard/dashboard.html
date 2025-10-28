@@ -7,7 +7,7 @@
     <title>SmartBus Operations Dashboard</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
     
     <script type="module">
         import { createIcons, Bus, MapPin, Clock, Gauge, Users, CheckCircle, BarChart3, Wifi, Power, Activity, LogOut, PublicLanding, Bell, Search, Filter, X, AlertCircle } from 'https://cdn.jsdelivr.net/npm/lucide@latest/+esm'
@@ -50,19 +50,19 @@
                 <i data-lucide="gauge" class="w-5 h-5"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
+            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
                 <i data-lucide="map-pin" class="w-5 h-5"></i>
                 <span>Real-Time Map</span>
             </a>
-            <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
+            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
                 <i data-lucide="bus" class="w-5 h-5"></i>
                 <span>Bus Management</span>
             </a>
-            <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
+            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
                 <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
                 <span>Analytics</span>
             </a>
-            <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
+            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
                 <i data-lucide="users" class="w-5 h-5"></i>
                 <span>Profile/Settings</span>
             </a>
@@ -77,7 +77,7 @@
                 </div>
             </div>
 
-            <a href="{% url 'public_landing' %}" class="w-full flex items-center justify-center space-x-2 p-3 rounded-xl text-smart-white bg-smart-secondary hover:opacity-90 transition-all font-semibold shadow-xl">
+            <a href="{% url 'core:public_landing' %}" class="w-full flex items-center justify-center space-x-2 p-3 rounded-xl text-smart-white bg-smart-secondary hover:opacity-90 transition-all font-semibold shadow-xl">
                 <i data-lucide="public-landing" class="w-5 h-5"></i>
                 <span>Go to Landing</span>
             </a>
@@ -238,6 +238,6 @@
         </main>
     </div>
 
-    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/dashboard/dashboard.js' %}"></script>
 </body>
 </html>
