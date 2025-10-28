@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - SmartBus Web+</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
 </head>
 <body>
@@ -36,12 +36,100 @@
                         <span class="error-message" id="loginPasswordError"></span>
                     </div>
 
+                    <div class="forgot-password-link">
+                        <a href="#" onclick="openPasswordResetModal(event)">Forgot Password?</a>
+                    </div>
+
                     <button type="submit" class="btn">Sign In</button>
                 </form>
 
                 <div class="switch-page">
                     Don't have an account? <a href="{% url 'register' %}">Create Account</a>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Reset Modal -->
+    <div id="passwordResetModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closePasswordResetModal()">&times;</span>
+            
+            <!-- Step 1: Email Input -->
+            <div id="resetStep1" class="reset-step active">
+                <h3>Reset Password</h3>
+                <p class="subtitle">Enter your email to receive a reset code</p>
+
+                <div class="info-text">
+                    We'll send a verification code to your email address.
+                </div>
+
+                <form id="resetEmailForm" onsubmit="sendResetCode(event)">
+                    <div class="form-group">
+                        <label for="resetEmail">Email Address</label>
+                        <input type="email" id="resetEmail" placeholder="Enter your email" required>
+                        <span class="error-message" id="resetEmailError"></span>
+                        <span class="success-message" id="resetEmailSuccess"></span>
+                    </div>
+
+                    <button type="submit" class="btn" id="sendCodeBtn">Send Reset Code</button>
+                </form>
+
+                <div class="back-to-login">
+                    <a href="#" onclick="closePasswordResetModal()">← Back to Login</a>
+                </div>
+            </div>
+
+            <!-- Step 2: Code Verification -->
+            <div id="resetStep2" class="reset-step" style="display: none;">
+                <h3>Verify Code</h3>
+                <p class="subtitle">Enter the code sent to your email</p>
+
+                <div class="info-text" id="emailSentTo"></div>
+
+                <form id="verifyCodeForm" onsubmit="verifyResetCode(event)">
+                    <div class="form-group">
+                        <label for="verificationCode">Verification Code</label>
+                        <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6" required>
+                        <span class="error-message" id="verifyCodeError"></span>
+                    </div>
+
+                    <button type="submit" class="btn">Verify Code</button>
+                </form>
+
+                <div class="back-to-login">
+                    <a href="#" onclick="goToResetStep(1)">← Back</a>
+                </div>
+            </div>
+
+            <!-- Step 3: New Password -->
+            <div id="resetStep3" class="reset-step" style="display: none;">
+                <h3>Create New Password</h3>
+                <p class="subtitle">Enter your new password</p>
+
+                <form id="newPasswordForm" onsubmit="resetPassword(event)">
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" placeholder="Enter new password" required>
+                        <span class="password-toggle" onclick="togglePassword('newPassword')">👁️</span>
+                        <div class="password-strength">
+                            <div class="password-strength-bar">
+                                <div class="password-strength-fill" id="passwordStrengthBar"></div>
+                            </div>
+                            <span id="passwordStrengthText"></span>
+                        </div>
+                        <span class="error-message" id="newPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</span>
+                        <span class="error-message" id="confirmPasswordError"></span>
+                    </div>
+
+                    <button type="submit" class="btn">Reset Password</button>
+                </form>
             </div>
         </div>
     </div>

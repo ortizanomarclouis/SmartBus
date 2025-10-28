@@ -1,100 +1,78 @@
-/* Import base styles from login page */
-@import url("login.css");
 
-/* Dashboard layout */
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f9fafb; /* light gray background */
+    font-family: 'Inter', sans-serif;
+    background-color: #0c0b0bd3;
+    color: #f3f4f6;
 }
 
-/* Dashboard container */
-.container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  text-align: center;
-  animation: fadeIn 0.4s ease;
+
+.deep-green-scrollbar::-webkit-scrollbar {
+    width: 8px;
 }
 
-.container h1 {
-  margin-bottom: 15px;
+.deep-green-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #00C853;
+    border-radius: 10px;
 }
 
-.container h2 {
-  color: #374151;
-  margin-bottom: 10px;
+.deep-green-scrollbar::-webkit-scrollbar-track {
+    background: #1f2937;
 }
 
-.container p {
-  color: #6b7280;
-  margin-bottom: 20px;
+
+#route-filter {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239CA3AF'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1.5em;
+    padding-right: 2.5rem;
 }
 
-/* Buttons (shared style) */
-.btn {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
+
+#message-box {
+    animation: slideIn 0.3s ease-in-out;
 }
 
-.btn-primary {
-  background: #10b981;
-  color: white;
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.btn-primary:hover {
-  background: #059669;
-  transform: scale(1.05);
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .main-content {
+        width: 100%;
+    }
 }
 
-.btn-secondary {
-  background: #f59e0b;
-  color: white;
+
+.status-badge {
+    transition: all 0.3s ease;
 }
 
-.btn-secondary:hover {
-  background: #d97706;
-  transform: scale(1.05); 
+.status-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Logout button at bottom */
-.logout-section {
-  margin-top: 30px;
-  text-align: center; 
+/* Table row hover effect */
+tbody tr {
+    transition: background-color 0.2s ease;
 }
 
-.logout-btn {
-  display: inline-block;
-  background: #ef4444;
-  padding: 10px 20px;
-  border-radius: 8px;
-  color: white;
-  text-decoration: none;
-  font-size: 0.9rem; /* keeps it small */
-  transition: all 0.3s ease;
-}
-
-.logout-btn:hover {
-  background: #dc2626;
-  transform: scale(1.05);
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+tbody tr:hover {
+    background-color: rgba(16, 185, 129, 0.1);
 }
