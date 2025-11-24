@@ -1,650 +1,690 @@
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-smartbus-app-id';
-const supabaseUrl = typeof __supabase_url !== 'undefined' ? __supabase_url : 'https://azzhzwknftoymvgrbgzt.supabase.co';
-const supabaseAnonKey = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6emh6d2tuZnRveW12Z3JiZ3p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMTU5NTQsImV4cCI6MjA3NDc5MTk1NH0.-xV5Mqx87uEibjMSHw0RMF5dZL85aJpJLQ0-h-6cevc';
+/* dashboard.js
+   Real-time simulation for SmartBus Web+
+   (copy this file to static/js/dashboard/dashboard.js and ensure dashboard.html uses defer)
+*/
 
-let supabase;
-let currentUserId = 'anonymous';
-let isAuthReady = false;
-let realtimeChannel = null;
-let notificationsArray = [];
-let offlineCache = {};
-let isOnline = navigator.onLine;
+/* ===========================
+   DATA: LOCATIONS, TIMES, DRIVERS, PREFIXES
+   =========================== */
 
-const ALL_ROUTES = [
-    "All Routes", "Cebu City", "Mandaue", "Talamban", "Lahug", "SM Seaside",
-    "IT Park", "Colon", "Pardo", "Talisay", "Escario", "Ayala Center", "Guadalupe"
+const LOCATIONS = [
+  "University of San Carlos (USC - Main)",
+  "Cebu Institute of Technology - University (CIT-U)",
+  "University of San Jose - Recoletos (USJR)",
+  "Cebu Normal University (CNU)",
+  "University of the Visayas (UV - Colon St.)",
+  "University of Cebu - Main Campus",
+  "University of Cebu - Banilad Campus",
+  "University of the Philippines Cebu (UP Cebu - Lahug)",
+  "Southwestern University PHINMA (SWU - Urgello)",
+  "Cebu Technological University (CTU - Main)",
+  "Ayala Center Cebu",
+  "IT Park / Cebu Business Park",
+  "SM Seaside City Cebu",
+  "Colon Street",
+  "Fuente Osmeña Circle",
+  "Cebu South Bus Terminal",
+  "Cebu North Bus Terminal",
+  "Parkmall",
+  "Mabolo",
+  "Talamban",
+  "Guadalupe",
+  "Pardo",
+  "Lahug / Escario",
+  "Mandaue City Center",
+  "Talisay City",
+  "Minglanilla",
+  "South Road Properties (SRP)",
+  "Cebu City Sports Center",
+  "Banilad",
+  "Labangon"
 ];
 
-const BUSES_TABLE = 'buses';
+const TRAVEL_TIMES = {
+  "University of San Carlos (USC - Main)|Cebu Institute of Technology - University (CIT-U)": 18,
+  "University of San Carlos (USC - Main)|Cebu Normal University (CNU)": 12,
+  "Cebu Institute of Technology - University (CIT-U)|University of San Jose - Recoletos (USJR)": 10,
+  "Cebu Institute of Technology - University (CIT-U)|SM Seaside City Cebu": 18,
+  "University of the Philippines Cebu (UP Cebu - Lahug)|Ayala Center Cebu": 8,
+  "Ayala Center Cebu|IT Park / Cebu Business Park": 6,
+  "Fuente Osmeña Circle|Colon Street": 5,
+  "Banilad|Talamban": 10,
+  "Mandaue City Center|Parkmall": 5,
+  "SM Seaside City Cebu|Talisay City": 15,
+  "Labangon|Cebu Institute of Technology - University (CIT-U)": 12,
+  "Banilad|University of San Carlos (USC - Main)": 25
+};
 
-const SHUTTLE_MOCK_DATA = [
-    { bus_id: 'SB-101', route: 'Talamban', status: 'Active', last_location: 'IT Park', occupancy: 65, eta: 3, driver: 'R. Dela Cruz', next_stop: 'USC Main' },
-    { bus_id: 'SB-102', route: 'SM Seaside', status: 'Active', last_location: 'Talisay', occupancy: 40, eta: 15, driver: 'E. Magno', next_stop: 'SRP' },
-    { bus_id: 'SB-103', route: 'Colon', status: 'Delayed', last_location: 'Pardo', occupancy: 90, eta: 22, driver: 'N. Fiel', next_stop: 'Carbon Market' },
-    { bus_id: 'SB-104', route: 'Mandaue', status: 'Maintenance', last_location: 'Depot A', occupancy: 0, eta: 0, driver: 'N/A', next_stop: 'N/A' },
-    { bus_id: 'SB-105', route: 'IT Park', status: 'Active', last_location: 'Escario', occupancy: 70, eta: 8, driver: 'J. Batiancila', next_stop: 'IT Park Entrance' },
-    { bus_id: 'SB-106', route: 'Guadalupe', status: 'Active', last_location: 'Ayala Center', occupancy: 50, eta: 2, driver: 'M. Castro', next_stop: 'Guadalupe Terminal' },
-    { bus_id: 'SB-107', route: 'Cebu City', status: 'Active', last_location: 'Lahug', occupancy: 80, eta: 10, driver: 'A. Lim', next_stop: 'City Hall' },
-    { bus_id: 'SB-108', route: 'Talisay', status: 'Active', last_location: 'Cebu City', occupancy: 30, eta: 18, driver: 'B. Dimaano', next_stop: 'Talisay Plaza' },
-    { bus_id: 'SB-109', route: 'Escario', status: 'Active', last_location: 'Mandaue', occupancy: 55, eta: 4, driver: 'C. Santos', next_stop: 'Capitol Building' },
+const DRIVERS = [
+  "Ramon Dela Cruz","Leo Duran","Josephine Almonte","Paolo Mendoza","Jessa Villamor","Carlos Santos","Maria Reyes","Antonio Flores",
+  "Rosa Garcia","Juan Maldonado","Sofia Ramirez","Diego Torres","Carmen Lopez","Miguel Hernandez","Angela Martinez","Roberto Diaz",
+  "Francisca Rodriguez","Manuel Gutierrez","Victoria Morales","Fernando Ramos","Isabel Jimenez","Arturo Castillo","Mariana Navarro","Hector Vargas",
+  "Elena Ortega","Ricardo Medina","Patricia Soto","Luis Rojas","Adriana Campos","Enrique Salinas","Gabriela Fuentes","Adrian Munoz",
+  "Catalina Pena","Raul Herrera","Delia Aguilar","Victor Guerrero","Lucia Dominguez","Sergio Vazquez","Monica Ibarra","Oscar Ruiz",
+  "Ines Romero","Esteban Delgado","Silvia Cortes","Andres Molina","Beatriz Acosta","Guillermo Peralta","Norma Alves","Osvaldo Bravo",
+  "Lidia Estrada","Wilfredo Ochoa"
 ];
 
-// Initialize offline cache from localStorage
-function initializeOfflineCache() {
-    const cached = localStorage.getItem('busCache');
-    if (cached) {
-        try {
-            offlineCache = JSON.parse(cached);
-            console.log('Loaded offline cache:', Object.keys(offlineCache).length, 'buses');
-        } catch (e) {
-            console.error('Error parsing cache:', e);
-            offlineCache = {};
-        }
-    }
+const PLATE_PREFIXES = {
+  "University of San Carlos (USC - Main)": "S",
+  "Cebu Institute of Technology - University (CIT-U)": "C",
+  "University of the Philippines Cebu (UP Cebu - Lahug)": "U",
+  "University of San Jose - Recoletos (USJR)": "J",
+  "Cebu Normal University (CNU)": "N",
+  "University of the Visayas (UV - Colon St.)": "V",
+  "Southwestern University PHINMA (SWU - Urgello)": "W",
+  "Cebu Technological University (CTU - Main)": "T",
+  "University of Cebu - Main Campus": "E",
+  "University of Cebu - Banilad Campus": "B",
+  "IT Park / Cebu Business Park": "I",
+  "Ayala Center Cebu": "A",
+  "SM Seaside City Cebu": "M"
+};
+
+/* ===========================
+   APP STATE
+   =========================== */
+
+const appState = {
+  buses: [],
+  currentLocation: "",
+  destinationLocation: "",
+  filteredBuses: [],
+  notifications: [],
+  isOnline: navigator.onLine,
+  trafficActive: false,
+  activeFilters: {
+    status: '',
+    location: ''
+  }
+};
+
+
+/* ===========================
+   UTIL: Travel time -> seconds
+   =========================== */
+
+function getTravelTimeSeconds(from, to) {
+  const key1 = `${from}|${to}`;
+  const key2 = `${to}|${from}`;
+  const minutes = TRAVEL_TIMES[key1] || TRAVEL_TIMES[key2] || null;
+  if (minutes) return Math.round(minutes * 60);
+  return (Math.floor(Math.random() * 8) + 8) * 60; 
 }
 
-// Update offline cache
-function updateOfflineCache(buses) {
-    const cache = {};
-    buses.forEach(bus => {
-        const busId = bus.busId || bus.bus_id;
-        cache[busId] = {
-            ...bus,
-            busId: busId,
-            cachedAt: new Date().toISOString()
-        };
-    });
-    localStorage.setItem('busCache', JSON.stringify(cache));
-    offlineCache = cache;
+/* ===========================
+   ETA formatting
+   =========================== */
+
+function formatETASeconds(sec) {
+  if (sec <= 0) return "00:00";
+  const minutes = Math.floor(sec / 60);
+  const seconds = Math.floor(sec % 60);
+  return `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
 }
 
-// Online/Offline status handlers
-function updateOnlineStatus() {
-    isOnline = navigator.onLine;
-    const statusIndicator = document.getElementById('online-status');
-    if (statusIndicator) {
-        statusIndicator.innerHTML = `
-            <div class="flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${isOnline ? 'bg-smart-success/20 text-smart-success' : 'bg-red-500/20 text-red-400'}">
-                <div class="w-2 h-2 rounded-full ${isOnline ? 'bg-smart-success' : 'bg-red-400'}"></div>
-                <span>${isOnline ? 'Online' : 'Offline'}</span>
-            </div>
-        `;
-    }
-    
-    if (!isOnline) {
-        alertMessage('You are offline. Showing cached data.', 'bg-yellow-600');
-    } else {
-        alertMessage('Back online!', 'bg-smart-success');
-        setupBusDataListener();
-    }
+/* ===========================
+   Plate generator
+   =========================== */
+
+function generatePlate(prefix) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let plate = prefix;
+  for (let i=0;i<5;i++) plate += chars.charAt(Math.floor(Math.random()*chars.length));
+  return plate;
 }
 
-// Notification system
-function addNotification(busId, route, eta, message) {
-    const notificationId = `${busId}-${eta}`;
-    
-    // Check if notification already exists
-    if (notificationsArray.find(n => n.id === notificationId)) {
-        return;
-    }
-    
-    const notification = {
-        id: notificationId,
-        busId,
-        route,
-        eta,
-        message,
-        timestamp: new Date()
+/* ===========================
+   Favorites System
+   =========================== */
+
+
+// Load favorites from localStorage
+function loadFavorites() {
+  const favs = JSON.parse(localStorage.getItem('favoriteRoutes') || '[]');
+  return favs;
+}
+
+// Save favorites to localStorage
+function saveFavorites(favs) {
+  localStorage.setItem('favoriteRoutes', JSON.stringify(favs));
+}
+
+// Render favorite buttons in sidebar
+function renderFavorites() {
+  const favList = document.getElementById('favorite-routes-list');
+  const favs = loadFavorites();
+  favList.innerHTML = '';
+
+  if(favs.length === 0) {
+    favList.innerHTML = '<p>No favorites yet</p>';
+    return;
+  }
+
+  favs.forEach((route, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'favorite-route-btn';
+    btn.textContent = `🚍 ${route.from} → ${route.to}`;
+    btn.onclick = () => applyFavoriteRoute(route.from, route.to);
+    favList.appendChild(btn);
+
+    // Optional: remove button
+    const removeBtn = document.createElement('span');
+    removeBtn.textContent = ' ✕';
+    removeBtn.className = 'remove-fav-btn';
+    removeBtn.onclick = (e) => {
+      e.stopPropagation();
+      removeFavorite(index);
     };
-    
-    notificationsArray.unshift(notification);
-    if (notificationsArray.length > 10) {
-        notificationsArray = notificationsArray.slice(0, 10);
-    }
-    
-    updateNotificationUI();
-    
-    // Browser notification
-    if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('SmartBus Alert', {
-            body: message,
-            icon: '🚌'
-        });
-    }
+    btn.appendChild(removeBtn);
+  });
 }
 
-function updateNotificationUI() {
-    const notificationBadge = document.getElementById('notification-badge');
-    const notificationList = document.getElementById('notification-list');
-    
-    if (notificationBadge) {
-        if (notificationsArray.length > 0) {
-            notificationBadge.textContent = notificationsArray.length;
-            notificationBadge.style.display = 'flex';
-        } else {
-            notificationBadge.style.display = 'none';
-        }
-    }
-    
-    if (notificationList) {
-        if (notificationsArray.length === 0) {
-            notificationList.innerHTML = '<div class="p-4 text-center text-gray-400">No notifications</div>';
-        } else {
-            notificationList.innerHTML = notificationsArray.map(notif => `
-                <div class="p-4 hover:bg-gray-700/50 transition-colors border-b border-gray-700">
-                    <div class="flex items-start space-x-3">
-                        <i data-lucide="alert-circle" class="w-5 h-5 text-smart-primary flex-shrink-0 mt-1"></i>
-                        <div class="flex-1">
-                            <p class="text-sm">${notif.message}</p>
-                            <p class="text-xs text-gray-400 mt-1">${notif.timestamp.toLocaleTimeString()}</p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-    }
+// Apply favorite route (set filters & find buses)
+function applyFavoriteRoute(from, to) {
+  document.getElementById('current-location').value = from;
+  document.getElementById('destination-location').value = to;
+  findBuses();
 }
 
-function toggleNotifications() {
-    const dropdown = document.getElementById('notification-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
-    }
+// Add current route to favorites
+function addCurrentRouteToFavorites() {
+  const from = document.getElementById('current-location').value;
+  const to = document.getElementById('destination-location').value;
+
+  if(!from || !to) {
+    showAlert('Select both current and destination locations first', 'warning');
+    return;
+  }
+
+  let favs = loadFavorites();
+
+  if(favs.some(f => f.from === from && f.to === to)) {
+    showAlert('Route already in favorites', 'info');
+    return;
+  }
+
+  favs.push({from, to});
+  saveFavorites(favs);
+  renderFavorites();
+
+  showAlert('Route added to favorites', 'success');
+  pushNotification(`⭐ Added favorite route: ${from} → ${to}`, {type: 'favorite'});
+  showMiniNotification(`Added ${from} → ${to}`);
 }
 
-function clearAllNotifications() {
-    notificationsArray = [];
-    updateNotificationUI();
+
+// Remove a favorite
+function removeFavorite(index) {
+  let favs = loadFavorites();
+  favs.splice(index, 1);
+  saveFavorites(favs);
+  renderFavorites();
+  showAlert('Favorite removed', 'info');
 }
 
-function requestNotificationPermission() {
-    if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                alertMessage('Notifications enabled!', 'bg-smart-success');
-            }
-        });
-    }
-}
-
-// Search and filter functionality
-function applySearchAndFilter() {
-    const searchQuery = document.getElementById('search-input')?.value.toLowerCase() || '';
-    const selectedRoute = document.getElementById('route-filter')?.value || 'All Routes';
-    
-    setupBusDataListener();
-    
-    // Update active filters display
-    updateActiveFilters(searchQuery, selectedRoute);
-}
-
-function updateActiveFilters(searchQuery, selectedRoute) {
-    const filtersContainer = document.getElementById('active-filters');
-    if (!filtersContainer) return;
-    
-    let filtersHTML = '';
-    
-    if (selectedRoute !== 'All Routes') {
-        filtersHTML += `
-            <span class="px-3 py-1 bg-smart-success/20 text-smart-success rounded-full text-sm flex items-center gap-2">
-                ${selectedRoute}
-                <button onclick="clearRouteFilter()" class="hover:text-white">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </span>
-        `;
-    }
-    
-    if (searchQuery) {
-        filtersHTML += `
-            <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm flex items-center gap-2">
-                "${searchQuery}"
-                <button onclick="clearSearchFilter()" class="hover:text-white">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </span>
-        `;
-    }
-    
-    if (filtersHTML) {
-        filtersContainer.innerHTML = `
-            <div class="mt-4 flex items-center gap-2">
-                <span class="text-sm text-gray-400">Active filters:</span>
-                ${filtersHTML}
-            </div>
-        `;
-    } else {
-        filtersContainer.innerHTML = '';
-    }
-}
-
-window.clearRouteFilter = function() {
-    const routeFilter = document.getElementById('route-filter');
-    if (routeFilter) {
-        routeFilter.value = 'All Routes';
-        applySearchAndFilter();
-    }
-};
-
-window.clearSearchFilter = function() {
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.value = '';
-        applySearchAndFilter();
-    }
-};
-
-function setLoadingState(isLoading, message = 'Loading bus data...') {
-    const tbody = document.getElementById('bus-status-tbody');
-    if (isLoading && tbody) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-500">${message}</td></tr>`;
-    }
-}
-
-function alertMessage(message, colorClass) {
-    const msgBox = document.getElementById('message-box');
-    if (msgBox) {
-        msgBox.textContent = message;
-        msgBox.className = `fixed bottom-4 right-4 p-4 rounded-xl shadow-2xl text-white font-bold transition-opacity duration-300 ${colorClass} z-50`;
-        msgBox.style.opacity = '1';
-        setTimeout(() => {
-            msgBox.style.opacity = '0';
-        }, 3000);
-    }
-}
-
-async function initializeSupabase() {
-    try {
-        initializeOfflineCache();
-        
-        if (!supabaseUrl || !supabaseAnonKey) {
-            console.warn("Supabase config is missing. Using mock data.");
-            displayMockData();
-            return;
-        }
-
-        const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
-        
-        supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-            console.error("Auth error:", error);
-            const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
-            if (anonError) {
-                console.error("Anonymous sign-in failed:", anonError);
-                displayCachedOrMockData();
-                return;
-            }
-            currentUserId = anonData.session?.user?.id || 'anonymous';
-        } else if (session) {
-            currentUserId = session.user.id;
-        } else {
-            const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
-            if (anonError) {
-                console.error("Anonymous sign-in failed:", anonError);
-                displayCachedOrMockData();
-                return;
-            }
-            currentUserId = anonData.session?.user?.id || 'anonymous';
-        }
-
-        isAuthReady = true;
-        console.log("Authenticated with Supabase. User ID:", currentUserId);
-        
-        await setupInitialData();
-        renderFilterOptions();
-        setupBusDataListener();
-
-    } catch (error) {
-        console.error("Supabase initialization failed:", error);
-        alertMessage('Error: Database connection failed.', 'bg-red-700');
-        displayCachedOrMockData();
-    }
-}
-
-function displayCachedOrMockData() {
-    if (Object.keys(offlineCache).length > 0) {
-        console.log("Displaying cached data...");
-        const cachedBuses = Object.values(offlineCache);
-        displayMockData(cachedBuses);
-    } else {
-        displayMockData();
-    }
-}
-
-async function setupInitialData() {
-    try {
-        const { data: existingBuses, error } = await supabase
-            .from(BUSES_TABLE)
-            .select('bus_id')
-            .limit(1);
-
-        if (error) {
-            console.error("Error checking existing data:", error);
-            displayCachedOrMockData();
-            return;
-        }
-
-        if (!existingBuses || existingBuses.length === 0) {
-            console.log("Creating mock data in Supabase...");
-            
-            const { error: insertError } = await supabase
-                .from(BUSES_TABLE)
-                .insert(SHUTTLE_MOCK_DATA);
-
-            if (insertError) {
-                console.error("Error inserting mock data:", insertError);
-                displayCachedOrMockData();
-            } else {
-                console.log("Mock data created successfully in Supabase.");
-            }
-        }
-    } catch (error) {
-        console.error("Error setting up initial data:", error);
-        displayCachedOrMockData();
-    }
-}
-
-function renderFilterOptions() {
-    const routeFilter = document.getElementById('route-filter');
-    if (routeFilter) {
-        routeFilter.innerHTML = '';
-        ALL_ROUTES.forEach(route => {
-            const option = document.createElement('option');
-            option.value = route;
-            option.textContent = route;
-            routeFilter.appendChild(option);
-        });
-    }
-}
-
-window.setupBusDataListener = async function() {
-    if (!isOnline) {
-        displayCachedOrMockData();
-        return;
-    }
-    
-    if (!supabase || !isAuthReady) {
-        console.warn("Supabase not ready. Using cached or mock data.");
-        displayCachedOrMockData();
-        return;
-    }
-
-    setLoadingState(true, 'Fetching live data...');
-
-    try {
-        if (realtimeChannel) {
-            await supabase.removeChannel(realtimeChannel);
-            realtimeChannel = null;
-        }
-
-        const routeFilter = document.getElementById('route-filter');
-        const searchInput = document.getElementById('search-input');
-        const selectedRoute = routeFilter ? routeFilter.value : "All Routes";
-        const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
-        
-        let query = supabase.from(BUSES_TABLE).select('*');
-
-        if (selectedRoute !== "All Routes") {
-            query = query.eq('route', selectedRoute);
-        }
-
-        const { data: buses, error } = await query;
-
-        if (error) {
-            console.error("Error fetching buses:", error);
-            alertMessage(`Error: ${error.message}`, 'bg-red-700');
-            displayCachedOrMockData();
-            return;
-        }
-
-        let filteredBuses = buses || [];
-        
-        // Apply search filter
-        if (searchQuery) {
-            filteredBuses = filteredBuses.filter(bus => {
-                const busId = (bus.busId || bus.bus_id || '').toLowerCase();
-                const route = (bus.route || '').toLowerCase();
-                const location = (bus.lastLocation || bus.last_location || '').toLowerCase();
-                const nextStop = (bus.nextStop || bus.next_stop || '').toLowerCase();
-                const driver = (bus.driver || '').toLowerCase();
-                
-                return busId.includes(searchQuery) || 
-                       route.includes(searchQuery) || 
-                       location.includes(searchQuery) || 
-                       nextStop.includes(searchQuery) ||
-                       driver.includes(searchQuery);
-            });
-        }
-
-        updateDashboard(filteredBuses);
-        updateOfflineCache(buses || []);
-
-        const channelName = selectedRoute !== "All Routes" 
-            ? `buses-${selectedRoute.replace(/\s+/g, '-').toLowerCase()}`
-            : 'buses-all';
-
-        realtimeChannel = supabase
-            .channel(channelName)
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: BUSES_TABLE,
-                filter: selectedRoute !== "All Routes" ? `route=eq.${selectedRoute}` : undefined
-            }, (payload) => {
-                console.log('Realtime update received:', payload);
-                setupBusDataListener();
-            })
-            .subscribe((status) => {
-                if (status === 'SUBSCRIBED') {
-                    console.log('Subscribed to realtime updates');
-                }
-            });
-
-        document.getElementById('user-id-display').textContent = `User: ${currentUserId}`;
-
-    } catch (error) {
-        console.error("Error setting up listener:", error);
-        displayCachedOrMockData();
-    }
-};
-
-function displayMockData(customData = null) {
-    console.log("Displaying data...");
-    renderFilterOptions();
-    
-    const searchInput = document.getElementById('search-input');
-    const routeFilter = document.getElementById('route-filter');
-    const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
-    const selectedRoute = routeFilter ? routeFilter.value : 'All Routes';
-    
-    let dataToDisplay = customData || SHUTTLE_MOCK_DATA.map(bus => ({
-        ...bus,
-        busId: bus.bus_id,
-        lastLocation: bus.last_location,
-        nextStop: bus.next_stop
-    }));
-    
-    // Apply filters
-    if (selectedRoute !== 'All Routes') {
-        dataToDisplay = dataToDisplay.filter(bus => bus.route === selectedRoute);
-    }
-    
-    if (searchQuery) {
-        dataToDisplay = dataToDisplay.filter(bus => {
-            const busId = (bus.busId || bus.bus_id || '').toLowerCase();
-            const route = (bus.route || '').toLowerCase();
-            const location = (bus.lastLocation || bus.last_location || '').toLowerCase();
-            const nextStop = (bus.nextStop || bus.next_stop || '').toLowerCase();
-            const driver = (bus.driver || '').toLowerCase();
-            
-            return busId.includes(searchQuery) || 
-                   route.includes(searchQuery) || 
-                   location.includes(searchQuery) || 
-                   nextStop.includes(searchQuery) ||
-                   driver.includes(searchQuery);
-        });
-    }
-    
-    updateDashboard(dataToDisplay);
-}
-
-function updateDashboard(buses) {
-    const normalizedBuses = buses.map(bus => ({
-        busId: bus.busId || bus.bus_id,
-        route: bus.route,
-        status: bus.status,
-        lastLocation: bus.lastLocation || bus.last_location,
-        nextStop: bus.nextStop || bus.next_stop || 'N/A',
-        occupancy: bus.occupancy,
-        eta: bus.eta,
-        driver: bus.driver
-    }));
-
-    const activeBuses = normalizedBuses.filter(b => b.status === 'Active').length;
-    const totalDeployedBuses = SHUTTLE_MOCK_DATA.length;
-    const onTimeBuses = normalizedBuses.filter(b => b.eta <= 10 && b.status === 'Active').length;
-    const onTimeRate = totalDeployedBuses > 0 ? ((onTimeBuses / totalDeployedBuses) * 100).toFixed(0) : 0;
-
-    document.getElementById('metric-active-buses').textContent = activeBuses;
-    document.getElementById('metric-on-time-rate').textContent = `${onTimeRate}%`;
-    document.getElementById('metric-offline-buses').textContent = totalDeployedBuses - activeBuses;
-
-    // Check for arriving buses and send notifications
-    normalizedBuses.forEach(bus => {
-        if (bus.status === 'Active' && bus.eta <= 5 && bus.eta > 0) {
-            addNotification(
-                bus.busId,
-                bus.route,
-                bus.eta,
-                `Bus ${bus.busId} on ${bus.route} route arriving in ${bus.eta} minutes!`
-            );
-        }
-    });
-
-    const tbody = document.getElementById('bus-status-tbody');
-    tbody.innerHTML = '';
-
-    normalizedBuses.sort((a, b) => a.eta - b.eta).forEach(bus => {
-        const isArrivingSoon = bus.eta <= 5 && bus.status === 'Active';
-        
-        const statusClass = bus.status === 'Active' ? 'bg-smart-success text-smart-dark' : 
-                           bus.status === 'Delayed' ? 'bg-yellow-400 text-gray-900' : 
-                           'bg-red-500 text-smart-white';
-
-        const etaText = bus.status !== 'Active' ? 'N/A' : (bus.eta <= 0 ? 'ARRIVED' : `${bus.eta} min`);
-        const etaStyle = isArrivingSoon ? 'font-extrabold text-smart-primary text-lg' : 'text-smart-white';
-        
-        const occupancyColor = bus.occupancy >= 80 ? 'text-red-400' : 
-                              bus.occupancy >= 60 ? 'text-yellow-400' : 'text-green-400';
-
-        const row = `
-            <tr class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                <td class="px-6 py-3 font-medium text-smart-primary">${bus.busId || 'N/A'}</td>
-                <td class="px-6 py-3 text-sm text-smart-white">${bus.route || 'N/A'}</td>
-                <td class="px-6 py-3 text-sm text-gray-400">${bus.nextStop || 'N/A'}</td>
-                <td class="px-6 py-3 ${etaStyle}">${etaText}</td>
-                <td class="px-6 py-3">
-                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                        ${bus.status || 'Offline'}
-                    </span>
-                </td>
-                <td class="px-6 py-3 text-sm text-smart-white">${bus.lastLocation || 'Depot'}</td>
-                <td class="px-6 py-3 text-sm font-semibold ${occupancyColor}">${bus.occupancy || 0}%</td>
-                <td class="px-6 py-3 text-sm text-gray-400">${bus.driver || 'N/A'}</td>
-            </tr>
-        `;
-        tbody.insertAdjacentHTML('beforeend', row);
-    });
-
-    if (normalizedBuses.length === 0) {
-        const currentRoute = document.getElementById('route-filter')?.value || 'All Routes';
-        const currentSearch = document.getElementById('search-input')?.value || '';
-        const message = currentSearch ? `No buses found matching "${currentSearch}"` : `No buses found for: ${currentRoute}`;
-        tbody.insertAdjacentHTML('beforeend', `<tr><td colspan="8" class="p-6 text-center text-gray-500">${message}</td></tr>`);
-    }
-    
-    // Update shuttle count
-    const shuttleCount = document.getElementById('shuttle-count');
-    if (shuttleCount) {
-        shuttleCount.textContent = `(${normalizedBuses.length})`;
-    }
-}
-
-// Simulate ETA countdown
-function startETACountdown() {
-    setInterval(() => {
-        if (supabase && isAuthReady && isOnline) {
-            // Real-time updates will handle this
-            return;
-        }
-        
-        // Update mock data ETAs
-        SHUTTLE_MOCK_DATA.forEach(bus => {
-            if (bus.status === 'Active' && bus.eta > 0) {
-                bus.eta = Math.max(0, bus.eta - 1);
-            }
-        });
-        
-        displayMockData();
-    }, 60000); // Every minute
-}
-
-window.handleLogout = async function() {
-    alertMessage('Signing out...', 'bg-smart-secondary');
-    
-    try {
-        if (supabase) {
-            await supabase.auth.signOut();
-        }
-    } catch (error) {
-        console.error("Logout error:", error);
-    }
-
-    setTimeout(() => {
-        window.location.href = '/logout/';
-    }, 500);
-};
-
-function updateClock() {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    document.getElementById('current-time').textContent = timeStr;
-    document.getElementById('current-date').textContent = dateStr;
-}
-
-// Close notifications when clicking outside
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('notification-dropdown');
-    const bellButton = document.getElementById('notification-bell');
-    
-    if (dropdown && !dropdown.contains(event.target) && !bellButton?.contains(event.target)) {
-        dropdown.classList.add('hidden');
-    }
-});
-
+// Initialize favorites
 window.addEventListener('load', () => {
-    initializeSupabase();
-    setInterval(updateClock, 1000);
-    updateClock();
-    startETACountdown();
-    updateOnlineStatus();
-
-    // Event listeners
-    const routeFilter = document.getElementById('route-filter');
-    if (routeFilter) {
-        routeFilter.addEventListener('change', applySearchAndFilter);
-    }
-    
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', applySearchAndFilter);
-    }
-    
-    // Online/offline event listeners
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
+  renderFavorites();
+  const addFavBtn = document.getElementById('add-favorite-btn');
+  if(addFavBtn) addFavBtn.addEventListener('click', addCurrentRouteToFavorites);
 });
+
+
+/* ===========================
+   INITIALIZATION
+   =========================== */
+
+window.addEventListener('load',()=>{
+  try{
+    populateLocationSelects();
+    generateBusData();
+    startClock();
+    setupEventListeners();
+    updateBusMetrics();
+    startBusCountdown();
+    renderBusTable(appState.buses);
+    updateNotificationUI();
+  }catch(err){
+    console.error("Initialization error:",err);
+    showAlert("Failed to initialize dashboard","error");
+  }
+});
+
+function populateLocationSelects(){
+  const cur=document.getElementById('current-location');
+  const dest=document.getElementById('destination-location');
+  const filterloc=document.getElementById('filter-location');
+  LOCATIONS.forEach(loc=>{
+    [cur,dest,filterloc].forEach(select=>{
+      const o=document.createElement('option');
+      o.value=loc;
+      o.textContent=loc;
+      select.appendChild(o);
+    });
+  });
+}
+
+function generateBusData(){
+  appState.buses=[];
+  for(let i=0;i<50;i++){
+    const curIdx=Math.floor(Math.random()*LOCATIONS.length);
+    const currentLocation=LOCATIONS[curIdx];
+    const nextLocation=LOCATIONS[(curIdx+1)%LOCATIONS.length];
+    const prefix=PLATE_PREFIXES[currentLocation]||'X';
+    const plate=generatePlate(prefix);
+    const etaSeconds=getTravelTimeSeconds(currentLocation,nextLocation)+Math.floor(Math.random()*60);
+    const occupancy=Math.floor(Math.random()*26);
+    const status=occupancy>=25?"Fully Occupied":"Occupiable";
+    const isMaintain=Math.random()<0.02;
+    appState.buses.push({
+      id:i,
+      plateNumber:plate,
+      driver:DRIVERS[i%DRIVERS.length],
+      currentLocation,
+      nextLocation,
+      etaSeconds,
+      originalEtaSeconds:etaSeconds,
+      status:isMaintain?"Maintenance":status,
+      occupancy,
+      totalCapacity:25
+    });
+  }
+}
+
+/* ===========================
+   Clock & traffic
+   =========================== */
+
+function startClock(){
+  updateClock();
+  setInterval(updateClock,1000);
+}
+
+function updateClock(){
+  const now=new Date();
+  const timeEl=document.getElementById('current-time');
+  const dateEl=document.getElementById('current-date');
+  if(timeEl) timeEl.textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  if(dateEl) dateEl.textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+
+  const wasTraffic=appState.trafficActive;
+  appState.trafficActive=isTrafficTime();
+  if(appState.trafficActive!==wasTraffic){
+    if(appState.trafficActive){
+      pushNotification("⚠️ Traffic Time Active — ETAs may increase",{type:'traffic',important:true});
+      showMiniNotification("Traffic time active");
+      document.getElementById('traffic-alert').style.display='flex';
+    }else{
+      pushNotification("Traffic interval ended — ETAs returning to normal",{type:'traffic',important:true});
+      showMiniNotification("Traffic ended");
+      document.getElementById('traffic-alert').style.display='none';
+    }
+  }
+  updateActiveBuses();
+}
+
+function isTrafficTime(){
+  const now=new Date();
+  const minutes=now.getHours()*60+now.getMinutes();
+  return (minutes>=405 && minutes<525)||(minutes>=690 && minutes<810)||(minutes>=1010 && minutes<1170);
+}
+
+function updateActiveBuses(){
+  const now=new Date();
+  const hour=now.getHours();
+  let activeCount=50;
+  if(hour>=5 && hour<23) activeCount=50;
+  else if(hour>=3 && hour<5) activeCount=Math.floor(Math.random()*2)+4;
+  else if(hour>=23 || (hour>=0 && hour<3)) activeCount=Math.floor(Math.random()*2)+3;
+  appState.activeBuses=activeCount;
+  const el=document.getElementById('metric-active-buses');
+  if(el) el.textContent=activeCount;
+}
+
+/* ===========================
+   Bus countdown
+   =========================== */
+
+function startBusCountdown(){
+  setInterval(()=>{
+    appState.buses.forEach(bus=>{
+      if(bus.etaSeconds>0){
+        bus.etaSeconds = Math.max(0, bus.etaSeconds - 1);
+
+        // --- SLOWER OCCUPANCY CHANGE ---
+        if(bus.status !== "Maintenance" && Math.random() < 0.3){ // 30% chance per second
+          const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
+          bus.occupancy = Math.max(0, Math.min(bus.totalCapacity, bus.occupancy + change));
+          bus.status = (bus.occupancy >= bus.totalCapacity) ? "Fully Occupied" : "Occupiable";
+        }
+
+        if(bus.etaSeconds <= 0){
+          arrivedAtStop(bus);
+          pushNotification(`🚍 ${bus.plateNumber} (${bus.driver}) arrived at ${bus.currentLocation}`, {type:'arrival'});
+          showMiniNotification(`${bus.plateNumber} arrived`);
+        }
+      }
+    });
+
+    const showing = (appState.filteredBuses && appState.filteredBuses.length) ? appState.filteredBuses : appState.buses;
+    renderBusTable(showing);
+  }, 1000);
+}
+
+
+
+
+
+function arrivedAtStop(bus){
+  bus.currentLocation=bus.nextLocation;
+  const idx=LOCATIONS.indexOf(bus.currentLocation);
+  const nextIdx=(idx+1)%LOCATIONS.length;
+  bus.nextLocation=LOCATIONS[nextIdx];
+
+  let newTravel=getTravelTimeSeconds(bus.currentLocation,bus.nextLocation);
+  if(appState.trafficActive) newTravel = Math.floor(newTravel * 1.7); // Increase ETA during traffic
+
+  bus.etaSeconds = newTravel + Math.floor(Math.random()*30);
+  bus.originalEtaSeconds = newTravel;
+  bus.occupancy = Math.floor(Math.random()*26);
+  bus.status = (Math.random()<0.02)?"Maintenance":(bus.occupancy>=25?"Fully Occupied":"Occupiable");
+}
+
+
+/* ===========================
+   Find buses
+   =========================== */
+
+window.findBuses = function() {
+  const cur = document.getElementById('current-location').value;
+  const dest = document.getElementById('destination-location').value;
+
+  if (!cur || !dest) {
+    showAlert('Please select both current location and destination', 'warning');
+    return;
+  }
+  if (cur === dest) {
+    showAlert('Current location and destination must be different', 'warning');
+    return;
+  }
+
+  appState.currentLocation = cur;
+  appState.destinationLocation = dest;
+
+  // FILTER ONLY BUSES THAT ARE CURRENTLY AT cur AND GOING TO dest
+  appState.filteredBuses = appState.buses.filter(bus =>
+    bus.currentLocation === cur && bus.nextLocation === dest
+  );
+
+  updateBusMetrics();
+  renderBusTable(appState.filteredBuses);
+  updateBusCount(appState.filteredBuses.length);
+
+  if (appState.filteredBuses.length === 0)
+    showAlert('No buses available for this exact route right now', 'info');
+  else
+    showAlert(`Found ${appState.filteredBuses.length} buses for this route`, 'success');
+};
+
+
+/* ===========================
+   Search & filters
+   =========================== */
+
+function performSearch(){
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+
+  if(!q) {
+    appState.filteredBuses = null; // clear filter if search is empty
+    renderBusTable(appState.buses);
+    updateBusCount(appState.buses.length);
+    return;
+  }
+
+  // Filter buses based on search query
+  const base = appState.buses;
+  const results = base.filter(bus => {
+    return bus.plateNumber.toLowerCase().includes(q) ||
+           bus.driver.toLowerCase().includes(q) ||
+           bus.currentLocation.toLowerCase().includes(q) ||
+           bus.nextLocation.toLowerCase().includes(q);
+  });
+
+  appState.filteredBuses = results; // store filtered buses
+  renderBusTable(results);
+  updateBusCount(results.length);
+}
+
+
+window.toggleAdvancedFilter=function(){
+  const p=document.getElementById('advanced-filter-panel');
+  if(!p) return;
+  p.style.display=(p.style.display==='none'||p.style.display==='')?'block':'none';
+};
+
+window.applyFilters = function(){
+  // Store active filters
+  appState.activeFilters.status = document.getElementById('filter-status').value;
+  appState.activeFilters.location = document.getElementById('filter-location').value;
+
+  filterAndRenderBuses();
+};
+
+
+window.resetFilters = function(){
+  document.getElementById('filter-status').value = '';
+  document.getElementById('filter-location').value = '';
+
+  appState.activeFilters.status = '';
+  appState.activeFilters.location = '';
+
+  filterAndRenderBuses();
+};
+
+function filterAndRenderBuses() {
+  let buses = appState.buses;
+
+  // Apply filters
+  if(appState.activeFilters.status) {
+    buses = buses.filter(b => b.status === appState.activeFilters.status);
+  }
+  if(appState.activeFilters.location) {
+    buses = buses.filter(b => b.currentLocation === appState.activeFilters.location);
+  }
+
+  // Apply search
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  if(q) {
+    buses = buses.filter(b =>
+      b.plateNumber.toLowerCase().includes(q) ||
+      b.driver.toLowerCase().includes(q) ||
+      b.currentLocation.toLowerCase().includes(q) ||
+      b.nextLocation.toLowerCase().includes(q)
+    );
+  }
+
+  appState.filteredBuses = buses;
+  renderBusTable(buses);
+  updateBusCount(buses.length);
+}
+
+function clearSearchFilter() {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = '';      // Clear the input
+    appState.filteredBuses = null;                // Reset filtered buses
+    renderBusTable(appState.buses);               // Show all buses again
+    updateBusCount(appState.buses.length);        // Update bus count
+}
+
+
+
+/* ===========================
+   Render table & metrics
+   =========================== */
+
+function renderBusTable(buses){
+  const tbody=document.getElementById('bus-status-tbody');
+  if(!tbody) return;
+  if(!buses||buses.length===0){
+    tbody.innerHTML='<tr><td colspan="8" class="no-buses-row">No buses match your search criteria</td></tr>';
+    return;
+  }
+  tbody.innerHTML=buses.map(bus=>createBusRow(bus)).join('');
+  updateBusCount(buses.length);
+  updateNotificationUI();
+}
+
+function createBusRow(bus) {
+  const etaClass = appState.trafficActive && bus.status !== "Maintenance" ? 'eta-traffic' : '';
+  const etaDisplay = bus.status === "Maintenance" ? "-" : formatETASeconds(Math.max(0, Math.round(bus.etaSeconds)));
+  const trafficText = bus.status === "Maintenance" ? "-" : (appState.trafficActive ? '⚠️ Traffic' : 'Normal');
+
+  const statusClass = bus.status === "Maintenance" ? 'status-maintenance' :
+                      bus.status === "Fully Occupied" ? 'status-full' :
+                      'status-occupiable';
+
+  const occupancyDisplay = bus.status === "Maintenance" ? `0 / ${bus.totalCapacity}` : `${bus.occupancy} / ${bus.totalCapacity}`;
+  const nextStopDisplay = bus.status === "Maintenance" ? "-" : bus.nextLocation;
+
+  return `
+    <tr>
+      <td class="plate-no">${bus.plateNumber}</td>
+      <td class="driver-name">${bus.driver}</td>
+      <td class="location">${bus.currentLocation}</td>
+      <td class="next-stop">${nextStopDisplay}</td>
+      <td class="eta ${etaClass}">${etaDisplay}</td>
+      <td class="status"><span class="status-badge ${statusClass}">${bus.status}</span></td>
+      <td class="occupancy">${occupancyDisplay}</td>
+      <td class="traffic-indicator">${trafficText}</td>
+    </tr>
+  `;
+}
+
+
+
+function updateBusMetrics(){
+  const available=appState.buses.filter(b=>b.status==='Occupiable').length;
+  const el=document.getElementById('metric-available-buses');
+  if(el) el.textContent=available;
+}
+
+function updateBusCount(count){
+  const el=document.getElementById('shuttle-count');
+  if(el) el.textContent=`(${count})`;
+}
+
+/* ===========================
+   Notifications
+   =========================== */
+
+function pushNotification(message,opts={}){
+  const latest=appState.notifications[0];
+  if(latest && latest.message===message) return;
+  const entry={message,time:new Date().toLocaleTimeString(),type:opts.type||'info'};
+  appState.notifications.unshift(entry);
+  if(appState.notifications.length>20) appState.notifications.pop();
+  updateNotificationUI();
+  if(opts.important && "Notification" in window && Notification.permission==="granted"){
+    try{new Notification("SmartBus",{body:message});}catch(e){}
+  }
+}
+
+function updateNotificationUI(){
+  const badge=document.getElementById('notification-badge');
+  const list=document.getElementById('notification-list');
+  if(badge){
+    if(appState.notifications.length>0){badge.style.display='flex';badge.textContent=appState.notifications.length;}
+    else badge.style.display='none';
+  }
+  if(!list) return;
+  if(appState.notifications.length===0){list.innerHTML='<div class="no-notifications">No notifications</div>';return;}
+  list.innerHTML=appState.notifications.map(n=>`
+    <div class="notification-item">
+      <div class="notification-content">
+        <p class="notification-message">${n.message}</p>
+        <p class="notification-time">${n.time}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showMiniNotification(text){
+  const card=document.getElementById('notification-mini');
+  if(!card) return;
+  card.innerHTML=`<div style="min-width:180px;padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.75);color:#fff;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,0.4);">${text}</div>`;
+  card.style.display='block';
+  setTimeout(()=>{card.style.display='none';},3000);
+}
+
+window.toggleNotifications=function(){
+  const dd=document.getElementById('notification-dropdown');
+  if(!dd) return;
+  dd.classList.toggle('active');
+};
+
+window.clearAllNotifications=function(){
+  appState.notifications=[];
+  updateNotificationUI();
+};
+
+window.requestNotificationPermission=function(){
+  if(!("Notification" in window)) return;
+  if(Notification.permission==="default") Notification.requestPermission();
+};
+
+document.addEventListener('click',(e)=>{
+  const dd=document.getElementById('notification-dropdown');
+  const bell=document.getElementById('notification-bell');
+  if(!dd||!bell) return;
+  if(!dd.contains(e.target)&&!bell.contains(e.target)) dd.classList.remove('active');
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const bell = document.getElementById('notification-bell');
+  if (bell) {
+    bell.addEventListener('click', toggleNotifications);
+  }
+});
+
+
+/* ===========================
+   Small alerts
+   =========================== */
+
+function showAlert(message,type='info'){
+  const el=document.getElementById('message-box');
+  if(!el) return;
+  const cls={success:'bg-green-600',error:'bg-red-600',warning:'bg-yellow-600',info:'bg-blue-600'}[type]||'bg-blue-600';
+  el.textContent=message;
+  el.className=`message-box ${cls}`;
+  el.style.opacity='1';
+  setTimeout(()=>el.style.opacity='0',2800);
+}
+
+/* ===========================
+   Logout
+   =========================== */
+
+window.handleLogout=function(){
+  showAlert('Logging out...','info');
+  setTimeout(()=>{window.location.href='/logout/';},900);
+};
+
+/* ===========================
+   Event listeners
+   =========================== */
+
+function setupEventListeners(){
+  const searchInput=document.getElementById('search-input');
+  if(searchInput) searchInput.addEventListener('input',debounce(performSearch,250));
+}
+
+/* simple debounce */
+function debounce(fn,wait){
+  let t;
+  return function(...args){
+    clearTimeout(t);
+    t=setTimeout(()=>fn.apply(this,args),wait);
+  };
+}

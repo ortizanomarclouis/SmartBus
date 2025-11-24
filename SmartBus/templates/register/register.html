@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/register/register.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/login/login.css' %}">
+   <link rel="stylesheet" type="text/css" href="{% static 'css/register/register.css' %}">
+
 </head>
 <body>
     <div class="container">
@@ -20,7 +20,6 @@
                     Account created successfully! Redirecting to login...
                 </div>
 
-       
                 <form id="registerForm" method="post" action="">
                     {% csrf_token %}
 
@@ -39,7 +38,7 @@
                     <div class="form-group">
                         <label for="registerPassword">Password</label>
                         <input type="password" id="registerPassword" name="password1" placeholder="Create a password">
-                        <span class="password-toggle" onclick="togglePassword('registerPassword')">👁️</span>
+                        <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')" aria-label="Toggle password visibility">👁️</button>
                         <div class="password-strength">
                             <div class="password-strength-bar" id="strengthBar"></div>
                         </div>
@@ -49,7 +48,7 @@
                     <div class="form-group">
                         <label for="registerConfirmPassword">Confirm Password</label>
                         <input type="password" id="registerConfirmPassword" name="password2" placeholder="Confirm your password">
-                        <span class="password-toggle" onclick="togglePassword('registerConfirmPassword')">👁️</span>
+                        <button type="button" class="password-toggle" onclick="togglePassword('registerConfirmPassword')" aria-label="Toggle confirm password visibility">👁️</button>
                         <span class="error-message" id="registerConfirmPasswordError"></span>
                     </div>
 
@@ -74,5 +73,6 @@
     </div>
 
     <script src="{% static 'js/register/register.js' %}"></script>
+
 </body>
 </html>

@@ -2,242 +2,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartBus Operations Dashboard</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
-    
-    <script type="module">
-        import { createIcons, Bus, MapPin, Clock, Gauge, Users, CheckCircle, BarChart3, Wifi, Power, Activity, LogOut, PublicLanding, Bell, Search, Filter, X, AlertCircle } from 'https://cdn.jsdelivr.net/npm/lucide@latest/+esm'
-        createIcons({ icons: { Bus, MapPin, Clock, Gauge, Users, CheckCircle, BarChart3, Wifi, Power, Activity, LogOut, PublicLanding, Bell, Search, Filter, X, AlertCircle } });
-    </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Web+ — Dashboard</title>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'smart-primary': '#00C853',
-                        'smart-secondary': '#0066CC',
-                        'smart-dark': '#0c0b0bd3',
-                        'smart-success': '#10b981',
-                        'smart-white': '#FFFFFF',
-                        'smart-light-dark': '#1a1a1a',
-                    }
-                }
-            }
-        }
-    </script>
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <script defer src="{% static 'js/dashboard/dashboard.js' %}"></script>
 </head>
-<body class="h-screen w-screen flex flex-col md:flex-row overflow-hidden">
-    
-    <div id="message-box" class="fixed bottom-4 right-4 p-4 rounded-xl shadow-2xl text-white font-bold opacity-0 transition-opacity duration-300 pointer-events-none z-50 bg-smart-secondary"></div>
+<body class="dashboard-body">
+  <div id="message-box" class="message-box"></div>
 
-    <!-- Sidebar -->
-    <div class="hidden md:flex flex-col w-64 bg-smart-primary text-smart-white p-4 space-y-4 shadow-2xl">
-        <div class="text-2xl font-extrabold tracking-wider border-b border-smart-success pb-4 text-smart-dark">
-            SmartBus Web+
-        </div>
-        
-        <div class="h-28 flex items-center justify-center rounded-xl bg-smart-success/20 overflow-hidden shadow-inner p-4 text-smart-dark font-medium text-center">
-            System Status Monitor
-        </div>
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Web+</h2></div>
+    <div class="system-status-monitor">Real-Time Bus Tracker for Cebu Student Commuters</div>
 
-        <nav class="space-y-2 flex-grow">
-            <a href="#" class="flex items-center space-x-3 p-3 rounded-xl bg-smart-success font-semibold transition-colors shadow-lg text-smart-dark">
-                <i data-lucide="gauge" class="w-5 h-5"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
-                <i data-lucide="map-pin" class="w-5 h-5"></i>
-                <span>Real-Time Map</span>
-            </a>
-            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
-                <i data-lucide="bus" class="w-5 h-5"></i>
-                <span>Bus Management</span>
-            </a>
-            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
-                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-                <span>Analytics</span>
-            </a>
-            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-smart-success transition-colors text-smart-dark/80 hover:text-smart-dark">
-                <i data-lucide="users" class="w-5 h-5"></i>
-                <span>Profile/Settings</span>
-            </a>
-        </nav>
-        
-        <div class="pt-4 space-y-3 border-t border-smart-success">
-            <div>
-                <div id="user-id-display" class="text-xs text-gray-200 break-all">User: Loading...</div>
-                <div id="status-message" class="text-sm text-smart-dark mt-1 flex items-center bg-smart-success rounded-full px-2 py-0.5 max-w-min">
-                    <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i>
-                    Operational
-                </div>
-            </div>
+   <!-- Favorite Routes section -->
+<div class="sidebar-favorites">
+  <h3>Favorite Routes</h3>
+  <button id="add-favorite-btn" class="btn-add-favorite">+ Add Current Route</button>
+  <div id="favorite-routes-list">
+    <!-- Favorite buttons will be injected here -->
+  </div>
+</div>
 
-            <a href="{% url 'core:public_landing' %}" class="w-full flex items-center justify-center space-x-2 p-3 rounded-xl text-smart-white bg-smart-secondary hover:opacity-90 transition-all font-semibold shadow-xl">
-                <i data-lucide="public-landing" class="w-5 h-5"></i>
-                <span>Go to Landing</span>
-            </a>
 
-            <button onclick="handleLogout()" class="w-full flex items-center justify-center space-x-2 p-3 rounded-xl text-smart-dark bg-smart-success hover:opacity-90 transition-all font-semibold shadow-xl">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-                <span>Log Out</span>
-            </button>
-        </div>
+    <!-- Push footer to bottom -->
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
+      </div>
+      <a href="{% url 'dashboard:landing' %}" class="btn-footer btn-landing">Go Back Home</a>
     </div>
+  </aside>
 
-    <div class="flex-1 flex flex-col overflow-auto bg-smart-light-dark deep-green-scrollbar">
+  <div class="main-container">
+    <header class="header">
+      <h1>SmartBus Operations Dashboard</h1>
+      <div class="header-right">
+        <div id="online-status" class="status-indicator" title="Connection status" style="display:none;">Online</div>
+        <div class="time-display">
+          <div id="current-time" class="time">--:--:--</div>
+          <div id="current-date" class="date">---</div>
+        </div>
 
-        <!-- Header -->
-        <header class="flex-shrink-0 flex justify-between items-center p-4 shadow-xl bg-smart-dark border-b border-gray-700">
-            <h1 class="text-2xl font-bold text-smart-white">Operations Overview</h1>
-            <div class="flex items-center space-x-4 text-smart-white">
-                <!-- Online/Offline Status -->
-                <div id="online-status"></div>
+        <div class="notification-container">
+          <button id="notification-bell" class="notification-btn" aria-label="Notifications">
+            <span class="bell-icon">🔔</span>
+            <span id="notification-badge" class="notification-badge" style="display:none;">0</span>
+          </button>
 
-                <!-- Time Display -->
-                <div class="text-right">
-                    <div id="current-time" class="text-lg font-semibold">--:--:--</div>
-                    <div id="current-date" class="text-sm text-gray-400">---</div>
-                </div>
-
-                <!-- Notifications -->
-                <div class="relative">
-                    <button id="notification-bell" onclick="toggleNotifications()" class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors relative">
-                        <i data-lucide="bell" class="w-6 h-6 text-smart-primary"></i>
-                        <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 items-center justify-center hidden">0</span>
-                    </button>
-
-                    <!-- Notification Dropdown -->
-                    <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-96 bg-gray-800 rounded-lg shadow-2xl border border-gray-700 z-50 max-h-96 overflow-y-auto">
-                        <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-                            <h3 class="font-semibold">Notifications</h3>
-                            <button onclick="clearAllNotifications()" class="text-sm text-gray-400 hover:text-white">
-                                Clear All
-                            </button>
-                        </div>
-                        <div id="notification-list">
-                            <div class="p-4 text-center text-gray-400">No notifications</div>
-                        </div>
-                        <div class="p-3 border-t border-gray-700">
-                            <button onclick="requestNotificationPermission()" class="w-full text-sm text-smart-primary hover:text-smart-success">
-                                Enable Browser Notifications
-                            </button>
-                        </div>
-                    </div>
-                </div>
+          <div id="notification-dropdown" class="notification-dropdown">
+            <div class="notification-header">
+              <h3>Notifications</h3>
+              <button id="clear-notifications" class="clear-all-btn" onclick="clearAllNotifications()">Clear All</button>
             </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="p-6 space-y-6 flex-1 overflow-auto">
-            
-            <!-- Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-smart-primary text-smart-dark p-6 rounded-xl shadow-2xl flex items-center justify-between">
-                    <div>
-                        <div class="text-sm font-medium opacity-90">Active Buses</div>
-                        <div id="metric-active-buses" class="text-4xl font-extrabold mt-1">--</div>
-                    </div>
-                    <i data-lucide="activity" class="w-10 h-10 opacity-50"></i>
-                </div>
-
-                <div class="bg-smart-dark text-smart-white p-6 rounded-xl shadow-2xl flex items-center justify-between border-2 border-smart-primary">
-                    <div>
-                        <div class="text-sm font-medium text-gray-400">On-Time Rate</div>
-                        <div id="metric-on-time-rate" class="text-4xl font-extrabold mt-1 text-smart-primary">--%</div>
-                    </div>
-                    <i data-lucide="clock" class="w-10 h-10 text-smart-primary opacity-70"></i>
-                </div>
-
-                <div class="bg-smart-dark text-smart-white p-6 rounded-xl shadow-2xl flex items-center justify-between border border-gray-700">
-                    <div>
-                        <div class="text-sm font-medium text-gray-400">Total Offline</div>
-                        <div id="metric-offline-buses" class="text-4xl font-extrabold mt-1 text-red-400">--</div>
-                    </div>
-                    <i data-lucide="power" class="w-10 h-10 text-gray-500"></i>
-                </div>
+            <div id="notification-list" class="notification-list">
+              <div class="no-notifications">No notifications</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-            <!-- Search and Filter Section -->
-            <div class="bg-smart-dark rounded-xl shadow-2xl p-6">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <!-- Search Bar -->
-                    <div class="flex-1 relative">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                        <input
-                            id="search-input"
-                            type="text"
-                            placeholder="Search by Bus ID, Route, Location, Stop, or Driver..."
-                            class="w-full pl-10 pr-10 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-smart-primary focus:border-transparent text-white"
-                        />
-                        <button onclick="clearSearchFilter()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>
-                    </div>
+    <main class="content-area">
+      <section class="location-selection-section">
+        <h2>Select Your Route</h2>
+        <div class="location-selector">
+          <div class="location-input-group">
+            <label for="current-location">Current Location</label>
+            <select id="current-location" class="location-select">
+              <option value="">-- Choose Current Location --</option>
+            </select>
+          </div>
 
-                    <!-- Route Filter -->
-                    <div class="md:w-64 relative">
-                        <i data-lucide="filter" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                        <select
-                            id="route-filter"
-                            class="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-smart-primary focus:border-transparent text-white appearance-none cursor-pointer"
-                        >
-                            <!-- Options populated by JavaScript -->
-                        </select>
-                    </div>
-                </div>
+          <div class="location-input-group">
+            <label for="destination-location">Destination</label>
+            <select id="destination-location" class="location-select">
+              <option value="">-- Choose Destination --</option>
+            </select>
+          </div>
 
-                <!-- Active Filters Display -->
-                <div id="active-filters"></div>
-            </div>
+          <div class="action-item">
+            <button id="find-buses-btn" class="btn-find-buses" onclick="findBuses()">Find Buses</button>
+          </div>
+        </div>
+      </section>
 
-            <!-- Fleet Location Map -->
-            <div class="bg-smart-dark rounded-xl shadow-2xl p-6">
-                <h2 class="text-xl font-semibold text-smart-white mb-4 flex items-center">
-                    <i data-lucide="map-pin" class="w-6 h-6 text-smart-primary mr-2"></i>
-                    Fleet Location
-                </h2>
-                <div class="h-80 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 font-medium border-4 border-dashed border-gray-600">
-                    Map View Placeholder 
-                </div>
-            </div>
+      <section class="search-filter-section">
+        <div class="search-filter-container">
+          <div class="search-bar-wrapper">
+            <span class="search-icon">🔍</span>
+            <input id="search-input" class="search-input" placeholder="Search Plate No, Driver, Location or Next stop" />
+            <button class="search-clear-btn" onclick="clearSearchFilter()">✕</button>
+          </div>
+          <button id="filter-toggle-btn" class="btn-secondary" onclick="toggleAdvancedFilter()">⚙️ Filters</button>
+        </div>
 
-            <!-- Shuttle Status Table -->
-            <div class="bg-smart-dark rounded-xl shadow-2xl overflow-hidden">
-                <div class="p-6 flex justify-between items-center border-b border-gray-700">
-                    <h2 class="text-xl font-semibold text-smart-white flex items-center">
-                        <i data-lucide="bus" class="w-6 h-6 text-smart-primary mr-2"></i>
-                        Available Shuttles <span id="shuttle-count" class="ml-2 text-gray-400"></span>
-                    </h2>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-700">
-                        <thead class="bg-smart-primary text-smart-dark">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Bus ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Route (Cebu)</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Next Stop</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">ETA (Min)</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Last Location</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Occupancy</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Driver</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bus-status-tbody" class="bg-smart-dark divide-y divide-gray-700">
-                            <tr><td colspan="8" class="p-6 text-center text-gray-500">Loading bus data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
+        <div id="advanced-filter-panel" class="advanced-filter-panel" style="display:none;">
+          <select id="filter-status">
+            <option value="">Filter by Status</option>
+            <option value="Occupiable">Occupiable</option>
+            <option value="Fully Occupied">Fully Occupied</option>
+          </select>
+          <select id="filter-location">
+            <option value="">Filter by Location</option>
+          </select>
+          <button onclick="applyFilters()">Apply</button>
+          <button onclick="resetFilters()">Reset</button>
+        </div>
+      </section>
 
-    <script src="{% static 'js/dashboard/dashboard.js' %}"></script>
+      <div id="traffic-alert" class="traffic-alert" style="display:none;">
+        ⚠️ Heavy Traffic: Expect slower ETA updates
+      </div>
+
+      <section class="shuttle-table-section">
+        <div class="table-header">
+          <h2>Available Buses <span id="shuttle-count">(50)</span></h2>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="shuttle-table">
+            <thead>
+              <tr>
+                <th>Plate No</th>
+                <th>Driver Name</th>
+                <th>Current Location</th>
+                <th>Next Stop</th>
+                <th>ETA</th>
+                <th>Status</th>
+                <th>Occupancy</th>
+                <th>Traffic</th>
+              </tr>
+            </thead>
+            <tbody id="bus-status-tbody">
+              <tr><td colspan="8" class="loading-row">Loading buses...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
 </body>
 </html>
