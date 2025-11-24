@@ -1,9 +1,9 @@
 :root {
-    --color-primary: #00cc55;
+    --color-primary: #00C853;
     --color-dark-blue: #0066CC;
-    --color-text: #f9fafb;
+    --color-text: white;
     --color-light-text: #e0e0e0;
-    --color-background: #f9fafb;
+    --color-background: white;
     --header-height: 70px;
 }
 
@@ -32,7 +32,7 @@ body {
 }
 
 .site-header {
-    background-color: transparent;
+    background: linear-gradient(135deg, #0066CC 0%, #00C853 100%);
     height: var(--header-height);
     display: flex;
     align-items: center;
@@ -48,9 +48,9 @@ body {
 }
 
 .logo {
-    font-size: 1.3rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: #00C853;
     text-decoration: none;
 }
 
@@ -80,7 +80,7 @@ body {
 
 .btn-primary {
     background-color: var(--color-primary);
-    color: var(--color-background);
+    color: white;
     border-color: var(--color-primary);
 }
 
@@ -157,8 +157,8 @@ body {
 }
 
 .site-footer {
-    background-color: #f9fafb;
-    color: #666666;
+    background-color: linear-gradient(135deg, #0066CC 0%, #00C853 100%);
+    color: #666;
     padding: 20px 0;
     text-align: center;
     font-size: 0.85rem;

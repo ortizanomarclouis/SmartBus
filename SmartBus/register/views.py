@@ -5,81 +5,106 @@ from supabase import create_client, Client
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.core.mail import send_mail
-from django.conf import settings
 from .models import OTPVerification 
 
-# ====================================================================
-# NEW: SUPABASE INITIALIZATION (Keep this here as the utility center)
-# The Supabase URL and Key must be defined in your .env file
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+# Constants to avoid duplication
+REGISTER_TEMPLATE = "register/register.html"
+VERIFY_OTP_TEMPLATE = "register/verify_otp.html"
+REGISTER_URL = 'register:register'
+LOGIN_URL = 'login:login'
+DASHBOARD_URL = 'dashboard:landing'
 
-# Check if the keys exist before trying to create the client
+# ====================================================================
+# SUPABASE INITIALIZATION
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY")
+
 if SUPABASE_URL and SUPABASE_KEY:
     try:
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        print("✅ Supabase client initialized successfully!")
     except Exception as e:
-        print(f"Error initializing Supabase client: {e}")
+        print("❌ Error initializing Supabase client: " + str(e))
         supabase = None
 else:
-    print("WARNING: SUPABASE_URL or SUPABASE_KEY not found in environment.")
+    print("❌ WARNING: SUPABASE_URL or SUPABASE_ANON_KEY not found in environment.")
+    print("   SUPABASE_URL: " + str(SUPABASE_URL))
+    print("   SUPABASE_ANON_KEY: " + str(SUPABASE_KEY))
     supabase = None
 # ====================================================================
 
 
-# Generate 6-digit OTP (Keep utility functions here)
 def generate_otp():
+    """Generate 6-digit OTP"""
     return ''.join(random.choices(string.digits, k=6))
 
-# Send OTP Email (Keep utility functions here)
-def send_otp_email(email, otp_code):
+
+def send_otp_email_via_supabase(email, otp_code):
+    """
+    Send OTP via Supabase Email using sign_up method.
+    This triggers Supabase's confirmation email with a token.
+    We'll use our own OTP code and verify it ourselves.
+    """
     try:
-        print(f"\n{'='*60}")
-        print(f"OTP EMAIL SENT TO: {email}")
-        print(f"OTP CODE: {otp_code}")
-        print(f"VALID FOR: 10 minutes")
-        print(f"{'='*60}\n")
+        separator = "=" * 60
+        print("\n" + separator)
+        print("📧 ATTEMPTING TO SEND EMAIL VIA SUPABASE")
+        print("📧 TO: " + email)
+        print("📧 OTP CODE: " + otp_code)
+        print(separator + "\n")
         
-        subject = "SmartBus Email Verification - OTP Code"
-        message = f"""
-Hello,
-
-Your SmartBus OTP verification code is:
-
-{otp_code}
-
-This code will expire in 10 minutes.
-
-Do not share this code with anyone.
-
-Best regards,
-SmartBus Team
-        """
+        if not supabase:
+            print("❌ ERROR: Supabase client not initialized!")
+            return False
         
-        try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
-        except Exception as mail_e:
-            print(f"Failed to send email: {mail_e}")
-            pass
+        # Use Supabase to send a confirmation email
+        # We'll include our OTP in the metadata, but users will enter it manually
+        print("🔄 Triggering Supabase email by creating temporary account...")
         
+        # Create a temporary signup to trigger email
+        # The password doesn't matter - we'll verify via OTP
+        temp_password = "TempPass123!" + otp_code
+        
+        response = supabase.auth.sign_up({
+            "email": email,
+            "password": temp_password,
+            "options": {
+                "data": {
+                    "otp_code": otp_code,  # Store OTP in user metadata
+                    "verification_pending": True
+                }
+            }
+        })
+        
+        print("✅ SUPABASE EMAIL TRIGGERED")
+        print("📧 Confirmation email sent to: " + email)
+        print("🔑 OTP Code: " + otp_code)
+        print("   Note: User should check email for confirmation, then enter OTP: " + otp_code)
+        print("   Response: " + str(response))
         return True
+        
     except Exception as e:
-        print(f"Error in send_otp_email: {e}")
+        error_msg = str(e)
+        print("\n❌ FAILED TO TRIGGER SUPABASE EMAIL!")
+        print("   Error: " + error_msg)
+        
+        # Check if user already exists
+        if "already registered" in error_msg.lower() or "already been registered" in error_msg.lower():
+            print("⚠️ Email already registered in Supabase")
+            print("   This is okay - OTP will still work for verification")
+            return True
+        
+        print("\n🔧 TROUBLESHOOTING:")
+        print("   1. Make sure Supabase email is configured")
+        print("   2. Check Authentication → Providers → Email is enabled")
+        print("   3. Verify SMTP settings in Supabase Dashboard\n")
         return False
 
 
-# Register View - Step 1: Take email, username, password
 def register_view(request):
-    # NOTE: Assuming the 'landing' URL name is defined in your 'dashboard' app's urls.py
+    """Handle user registration with OTP verification"""
     if request.user.is_authenticated:
-        return redirect('dashboard:landing')
+        return redirect(DASHBOARD_URL)
     
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
@@ -87,118 +112,153 @@ def register_view(request):
         password1 = request.POST.get("password1", "").strip()
         password2 = request.POST.get("password2", "").strip()
         
-        # Validation (Template path fixed)
+        # Validation
         if not username or not email or not password1:
             messages.error(request, "All fields are required")
-            return render(request, "register/register.html")
+            return render(request, REGISTER_TEMPLATE)
         
         if password1 != password2:
             messages.error(request, "Passwords do not match")
-            return render(request, "register/register.html")
+            return render(request, REGISTER_TEMPLATE)
         
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken")
-            return render(request, "register/register.html")
+            return render(request, REGISTER_TEMPLATE)
         
         if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered in local database")
-            return render(request, "register/register.html")
+            messages.error(request, "Email already registered")
+            return render(request, REGISTER_TEMPLATE)
         
-        # Generate OTP
+        # Check if Supabase is available
+        if not supabase:
+            messages.error(request, "Service unavailable. Please try again later.")
+            return render(request, REGISTER_TEMPLATE)
+        
+        # Generate our own OTP code
         otp_code = generate_otp()
         
-        # Delete old OTP if exists
+        # Delete old OTP record if exists
         OTPVerification.objects.filter(email=email).delete()
         
-        # Create new OTP record
+        # Create OTP record to store user data temporarily
         OTPVerification.objects.create(
             email=email,
-            otp_code=otp_code,
+            otp_code=otp_code,  # Store our generated OTP
             username=username,
-            password_hash=password1 # Storing the plain password temporarily
+            password_hash=password1
         )
         
-        # Send OTP Email
-        if send_otp_email(email, otp_code):
-            messages.success(request, f"OTP sent to {email}")
-            # Redirect to verify_otp
+        # Trigger Supabase email (this will send confirmation email)
+        # We're using Supabase just to send email, but verifying with our OTP
+        if send_otp_email_via_supabase(email, otp_code):
+            success_msg = "📧 Registration initiated! An email has been sent to {email}. Please enter this OTP code: {otp}".format(
+                email=email, 
+                otp=otp_code
+            )
+            messages.success(request, success_msg)
+            messages.info(request, "Your OTP code is: " + otp_code + " (also sent to your email)")
+            # Store email in session for verification page
+            request.session['pending_email'] = email
             return redirect('register:verify_otp')
-        else:
-            messages.error(request, "Failed to send OTP. Please check email settings.")
-            OTPVerification.objects.filter(email=email).delete()
-            return render(request, "register/register.html") # Template path fixed
+        
+        messages.error(request, "❌ Failed to send registration email. Please try again.")
+        OTPVerification.objects.filter(email=email).delete()
+        return render(request, REGISTER_TEMPLATE)
     
-    return render(request, "register/register.html") # Template path fixed
+    return render(request, REGISTER_TEMPLATE)
 
-# OTP Verification View
+
 def verify_otp_view(request):
-    # NOTE: Assuming the 'landing' URL name is defined in your 'dashboard' app's urls.py
+    """Handle OTP verification"""
     if request.user.is_authenticated:
-        return redirect('dashboard:landing')
+        return redirect(DASHBOARD_URL)
     
-    if request.method == "POST":
-        email = request.POST.get("email", "").strip()
-        otp_input = request.POST.get("otp", "").strip()
+    # Get email from session if available
+    pending_email = request.session.get('pending_email', '')
+    
+    if request.method != "POST":
+        return render(request, VERIFY_OTP_TEMPLATE, {'pending_email': pending_email})
+    
+    email = request.POST.get("email", "").strip()
+    otp_input = request.POST.get("otp", "").strip()
+    
+    if not email or not otp_input:
+        messages.error(request, "Email and OTP are required")
+        return render(request, VERIFY_OTP_TEMPLATE, {'pending_email': pending_email})
+    
+    try:
+        otp_record = OTPVerification.objects.get(email=email)
+    except OTPVerification.DoesNotExist:
+        messages.error(request, "Registration record not found. Please register again.")
+        return redirect(REGISTER_URL)
+    
+    # Check if OTP expired (10 minutes)
+    if otp_record.is_expired():
+        messages.error(request, "OTP expired. Please register again.")
+        otp_record.delete()
+        return redirect(REGISTER_URL)
+    
+    # Check attempts
+    if otp_record.attempts >= 5:
+        messages.error(request, "Too many failed attempts. Please register again.")
+        otp_record.delete()
+        return redirect(REGISTER_URL)
+    
+    # Verify OTP code (our own verification, not Supabase)
+    if otp_record.otp_code != otp_input:
+        otp_record.attempts += 1
+        otp_record.save()
+        remaining = 5 - otp_record.attempts
+        messages.error(request, "❌ Invalid OTP. {remaining} attempts remaining.".format(remaining=remaining))
+        return render(request, VERIFY_OTP_TEMPLATE, {"pending_email": email})
+    
+    # OTP is correct - proceed with registration
+    if not supabase:
+        print("⚠️ Supabase not available, creating Django user only")
+    
+    try:
+        print("\n✅ OTP VERIFIED SUCCESSFULLY for: " + email)
+        print("🔄 Creating user accounts...")
         
+        # Create in Supabase (the user might already exist from the sign_up we did earlier)
+        # That's fine - we'll handle the error
         try:
-            otp_record = OTPVerification.objects.get(email=email)
-            
-            if otp_record.is_expired():
-                messages.error(request, "OTP expired. Please register again.")
-                otp_record.delete()
-                return redirect('register:register')
-            
-            if otp_record.attempts >= 3:
-                messages.error(request, "Too many attempts. Please register again.")
-                otp_record.delete()
-                return redirect('register:register')
-            
-            if otp_record.otp_code == otp_input:
-                
-                if not supabase:
-                    messages.error(request, "Supabase service is unavailable. Cannot register.")
-                    return redirect('register')
-
-                try:
-                    # 1. ATTEMPT TO REGISTER IN SUPABASE AUTH
-                    user_response = supabase.auth.sign_up(
-                        {
-                            "email": otp_record.email,
-                            "password": otp_record.password_hash,
-                        }
-                    )
-                    
-                    # 2. If Supabase signup succeeds, create the local Django user
-                    user = User.objects.create_user(
-                        username=otp_record.username,
-                        email=otp_record.email,
-                        password=otp_record.password_hash # Django hashes the password
-                    )
-                    
-                    # Cleanup and Success
-                    otp_record.delete()
-                    messages.success(request, "Email verified! Account created. Please check your email for the **Supabase confirmation link** (if required) then login.")
-                    return redirect('login:login') # Redirects to the login view, defined in the 'login' app
-
-                except Exception as supabase_e:
-                    error_msg = str(supabase_e)
-                    
-                    if "user already exists" in error_msg.lower():
-                         messages.error(request, "An account with this email already exists in Supabase. Please login.")
-                    else:
-                        messages.error(request, f"Supabase Registration Failed. Error: {error_msg}")
-                    
-                    otp_record.delete()
-                    return redirect('register:register')
-                
-            else:
-                otp_record.attempts += 1
-                otp_record.save()
-                messages.error(request, f"Invalid OTP. {3 - otp_record.attempts} attempts remaining.")
-                return render(request, "register/verify_otp.html", {"email": email}) # Template path fixed
+            # Try to create with the actual password they want
+            supabase_response = supabase.auth.sign_up({
+                "email": email,
+                "password": otp_record.password_hash,
+                "options": {
+                    "data": {
+                        "username": otp_record.username,
+                        "verified": True
+                    }
+                }
+            })
+            print("✅ Supabase user created/updated")
+        except Exception as supabase_error:
+            print("⚠️ Supabase user creation: " + str(supabase_error))
+            print("   (User may already exist - this is okay)")
         
-        except OTPVerification.DoesNotExist:
-            messages.error(request, "OTP record not found. Please register again.")
-            return redirect('register:register')
+        # Create local Django user
+        User.objects.create_user(
+            username=otp_record.username,
+            email=email,
+            password=otp_record.password_hash
+        )
+        
+        print("✅ Django user created: " + otp_record.username)
+        
+        # Cleanup
+        otp_record.delete()
+        if 'pending_email' in request.session:
+            del request.session['pending_email']
+        
+        messages.success(request, "✅ Email verified! Account created successfully. Please login.")
+        return redirect(LOGIN_URL)
     
-    return render(request, "register/verify_otp.html") # Template path fixed
+    except Exception as error:
+        error_msg = str(error)
+        print("\n❌ User creation failed!")
+        print("   Error: " + error_msg)
+        messages.error(request, "Account creation failed. Please try again or contact support.")
+        return render(request, VERIFY_OTP_TEMPLATE, {"pending_email": email})

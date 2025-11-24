@@ -30,7 +30,6 @@ def login_view(request):
             
             if user is not None:
                 login(request, user)
-                messages.success(request, f"Welcome back, {user.username}!")
                 return redirect('dashboard:landing')
             else:
                 messages.error(request, "Invalid email or password")
@@ -45,5 +44,4 @@ def login_view(request):
 # Logout View
 def logout_view(request):
     logout(request)
-    messages.success(request, "You have been logged out")
     return redirect('core:public_landing')

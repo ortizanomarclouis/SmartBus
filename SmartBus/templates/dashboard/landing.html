@@ -6,82 +6,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SmartBus - Home</title>
 
- 
     <script src="https://cdn.tailwindcss.com"></script>
-
-  
-    <script src="{% static 'js/dashboard/landing.js' %}"></script>
-
-
+    <script src="{% static 'js/dashboard/landing.js' %}" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
-
- 
     <link rel="stylesheet" href="{% static 'css/dashboard/landing.css' %}" />
 </head>
 <body>
+<!-- HEADER -->
+<header class="site-header py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+        <a class="logo text-3xl font-bold text-green-500" href="{% url 'core:public_landing' %}">SmartBus Web+</a>
+        <nav class="flex items-center space-x-4">
+            {% if request.user.is_authenticated %}
+                <span class="user-greeting">Hello, {{ request.user.username }}</span>
+            {% endif %}
+            <a href="{% url 'dashboard:dashboard' %}" class="btn btn-primary">Dashboard</a>
+            <a href="{% url 'login:logout' %}" class="logout-btn">Logout</a>
+        </nav>
+    </div>
+</header>
 
 
-    <header class="site-header py-4 border-b border-gray-100 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <a class="text-xl font-bold text-primary-green" href="{% url 'core:public_landing' %}">SmartBus Web+</a>
-            <nav class="flex space-x-4 items-center">
-                <a class="text-gray-700 hover:text-primary-blue transition" href="#">Features</a>
-                <a class="text-gray-700 hover:text-primary-blue transition" href="#">How it Works</a>
-                <a class="text-gray-700 hover:text-primary-blue transition" href="#">Operator</a>
-                <a class="text-gray-700 hover:text-primary-blue transition" href="#">Contact</a>
-                <a href="{% url 'dashboard:dashboard' %}" class="btn btn-primary">Dashboard</a>
-                <a href="{% url 'login:logout' %}" class="px-3 py-1 text-sm font-semibold rounded-full border border-dark-gray text-dark-gray hover:bg-gray-100 transition duration-150">Logout</a>
-            </nav>
+
+<!-- HERO SECTION -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-inner">
+        <div class="hero-copy">
+            <h1>Track Campus Buses in Real-Time</h1>
+            <p>See bus locations, estimated arrival times, and occupancy updates instantly. Plan your commute smarter and avoid waiting unnecessarily.</p>
         </div>
-    </header>
+        <div class="map-placeholder shadow-xl" id="map-preview">
+            <img src="{% static 'images/smartbuses.jpg' %}" alt="Buses" class="map-image">
+        </div>
+    </div>
+</section>
 
 
-    <section class="hero-section">
-        <div class="hero-overlay"></div>
-        <div class="hero-inner">
-            <div class="hero-copy">
-                <h1>Know when your campus bus arrives</h1>
-                <p>GPS tracking combined with commuter updates. Reduce waiting time. Ride smarter.</p>
-                <div class="hero-actions flex space-x-4">
-                    <a href="#map-preview" class="btn btn-primary">View Map</a>
-                    <a href="#features" class="btn btn-ghost">How it works</a>
-                </div>
-            </div>
-            <div class="map-placeholder shadow-xl" id="map-preview">
-                Map preview
-            </div>
+    <!-- FEATURES / HOW IT WORKS SLIDER -->
+    <section id="feature-slider" class="features-section py-16 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <!-- Slides container -->
+           <div id="slides" class="flex transition-transform duration-500" style="width: 300%;">
+  <!-- Features Slide -->
+  <div class="w-full flex-shrink-0 px-4">
+    <h2 class="section-title text-center mb-8">Features</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">Real-Time Bus Tracking</h3>
+        <p class="feature-desc">Monitor campus buses live, with accurate location updates and estimated arrival times.</p>
+      </div>
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">Occupancy & Maintenance Status</h3>
+        <p class="feature-desc">See how full each bus is and know if a bus is under maintenance before you head out.</p>
+      </div>
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">Notifications & Alerts</h3>
+        <p class="feature-desc">Receive updates on bus arrivals, delays due to traffic, or maintenance interruptions in real-time.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Slide -->
+  <div class="w-full flex-shrink-0 px-4">
+    <h2 class="section-title text-center mb-8">How It Works</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">1. Select Your Route</h3>
+        <p class="feature-desc">Pick your current location and destination to see available buses and their estimated arrival times.</p>
+      </div>
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">2. Track Buses Live</h3>
+        <p class="feature-desc">Follow your selected bus on the map, view its current occupancy, and monitor arrival time changes due to traffic.</p>
+      </div>
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">3. Get Alerts</h3>
+        <p class="feature-desc">Receive notifications for bus arrivals, delays, full occupancy, or maintenance so you can adjust your commute accordingly.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🌟 New Impact Slide -->
+  <div class="w-full flex-shrink-0 px-4">
+    <h2 class="section-title text-center mb-8">Impact for Students & Commuters</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">Time Efficiency</h3>
+        <p class="feature-desc">Students spend less time waiting for buses and more time focusing on classes, activities, and rest.</p>
+      </div>
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">Reduced Stress</h3>
+        <p class="feature-desc">By providing real-time updates, students and commuters can plan ahead—avoiding uncertainty and rush hours.</p>
+      </div>
+      <div class="feature-card p-6">
+        <h3 class="feature-title text-xl font-semibold mb-2">Campus Sustainability</h3>
+        <p class="feature-desc">With better bus management, fewer vehicles are needed—reducing carbon footprint and promoting a greener campus.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+            <!-- Navigation Buttons -->
+            <button id="prev-slide" class="absolute left-0 top-1/2 transform -translate-y-1/2 btn btn-primary z-10">‹</button>
+            <button id="next-slide" class="absolute right-0 top-1/2 transform -translate-y-1/2 btn btn-primary z-10">›</button>
         </div>
     </section>
 
-
-    <section id="features" class="py-16 bg-app-bg text-light-gray">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="section-title mx-auto text-light-gray">Features</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-                <div class="feature-card">
-                
-                    <svg class="card-icon w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724..." /></svg>
-                    <h3 class="text-xl font-semibold mb-2 text-primary-green">GPS</h3>
-                    <p class="text-dark-gray">Real-time tracking to reduce wait times.</p>
-                </div>
-                <div class="feature-card">
-                    <svg class="card-icon w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="..." /></svg>
-                    <h3 class="text-xl font-semibold mb-2 text-primary-green">Crowd updates</h3>
-                    <p class="text-dark-gray">Report and view bus crowd levels.</p>
-                </div>
-                <div class="feature-card">
-                    <svg class="card-icon w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="..." /></svg>
-                    <h3 class="text-xl font-semibold mb-2 text-primary-green">Responsive Design</h3>
-                    <p class="text-dark-gray">Mobile and desktop support built-in.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <footer class="py-6 text-center text-xs bg-white text-dark-gray">
+    <!-- FOOTER -->
+    <footer>
         <p>© 2025 SmartBus Web+ • Built for campus mobility</p>
     </footer>
-
 </body>
 </html>
