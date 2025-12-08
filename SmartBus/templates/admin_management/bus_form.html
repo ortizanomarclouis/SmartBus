@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Admin — {% if is_edit %}Edit{% else %}Add{% endif %} Bus</title>
+
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
+  <script defer src="{% static 'js/admin_management/admin.js' %}"></script>
+</head>
+<body class="dashboard-body">
+  <div id="message-box" class="message-box"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
+    <div class="system-status-monitor">Bus Management System</div>
+
+    <!-- Admin Menu -->
+    <div class="sidebar-menu">
+      <h3>Management</h3>
+      <nav class="admin-nav">
+        <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        <a href="{% url 'admin_management:bus_list' %}" class="nav-item active">
+          <span class="icon">🚌</span> All Buses
+        </a>
+        <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
+          <span class="icon">➕</span> Add New Bus
+        </a>
+      </nav>
+    </div>
+
+    <!-- Push footer to bottom -->
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
+      </div>
+      <a href="{% url 'dashboard:landing' %}" class="btn-footer btn-landing">User Dashboard</a>
+      <a href="{% url 'login:logout' %}" class="btn-footer btn-logout">Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>{% if is_edit %}Edit Bus Information{% else %}Add New Bus{% endif %}</h1>
+      <div class="header-right">
+        <div id="online-status" class="status-indicator" title="Connection status" style="display:none;">Online</div>
+        <div class="time-display">
+          <div id="current-time" class="time">--:--:--</div>
+          <div id="current-date" class="date">---</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <!-- Display Messages -->
+      {% if messages %}
+        <div class="messages-section">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Bus Form -->
+      <section class="form-section">
+        <form method="post" class="bus-form">
+          {% csrf_token %}
+
+          <div class="form-container">
+            <!-- Row 1: Plate Number and Driver Name -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="plate_number">Plate Number *</label>
+                <input 
+                  type="text" 
+                  id="plate_number" 
+                  name="plate_number" 
+                  class="form-control"
+                  value="{% if bus %}{{ bus.plate_number }}{% endif %}"
+                  placeholder="e.g., BUS-001"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="driver_name">Driver Name *</label>
+                <input 
+                  type="text" 
+                  id="driver_name" 
+                  name="driver_name" 
+                  class="form-control"
+                  value="{% if bus %}{{ bus.driver_name }}{% endif %}"
+                  placeholder="Enter driver name"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 2: Route and Status -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="route">Route *</label>
+                <select id="route" name="route" class="form-control" required>
+                  <option value="">Select Route</option>
+                  {% for value, label in route_choices %}
+                    <option value="{{ value }}" {% if bus.route == value %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="status">Status *</label>
+                <select id="status" name="status" class="form-control" required>
+                  {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if bus.status == value %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 3: Capacity and Occupancy -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="capacity">Seat Capacity</label>
+                <input 
+                  type="number" 
+                  id="capacity" 
+                  name="capacity" 
+                  class="form-control"
+                  value="{% if bus %}{{ bus.capacity }}{% else %}50{% endif %}"
+                  placeholder="e.g., 50"
+                  min="1"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="occupancy">Current Occupancy</label>
+                <input 
+                  type="number" 
+                  id="occupancy" 
+                  name="occupancy" 
+                  class="form-control"
+                  value="{% if bus %}{{ bus.occupancy }}{% else %}0{% endif %}"
+                  placeholder="e.g., 0"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            <!-- Row 4: Current Location and Next Stop -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="current_location">Current Location *</label>
+                <input 
+                  type="text" 
+                  id="current_location" 
+                  name="current_location" 
+                  class="form-control"
+                  value="{% if bus %}{{ bus.current_location }}{% endif %}"
+                  placeholder="e.g., Downtown Station"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="next_stop">Next Stop *</label>
+                <input 
+                  type="text" 
+                  id="next_stop" 
+                  name="next_stop" 
+                  class="form-control"
+                  value="{% if bus %}{{ bus.next_stop }}{% endif %}"
+                  placeholder="e.g., Main Street"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 5: ETA and Traffic Condition -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="eta_minutes">ETA (minutes)</label>
+                <input 
+                  type="number" 
+                  id="eta_minutes" 
+                  name="eta_minutes" 
+                  class="form-control"
+                  value="{% if bus %}{{ bus.eta_minutes }}{% else %}0{% endif %}"
+                  placeholder="e.g., 5"
+                  min="0"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="traffic_condition">Traffic Condition</label>
+                <select id="traffic_condition" name="traffic_condition" class="form-control">
+                  {% for value, label in traffic_choices %}
+                    <option value="{{ value }}" {% if bus.traffic_condition == value %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success">
+                {% if is_edit %}💾 Update Bus{% else %}➕ Create Bus{% endif %}
+              </button>
+              <a href="{% url 'admin_management:bus_list' %}" class="btn btn-secondary">
+                ❌ Cancel
+              </a>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

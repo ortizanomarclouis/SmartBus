@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Admin — Bus Details</title>
+
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
+  <script defer src="{% static 'js/admin_management/admin.js' %}"></script>
+</head>
+<body class="dashboard-body">
+  <div id="message-box" class="message-box"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
+    <div class="system-status-monitor">Bus Management System</div>
+
+    <!-- Admin Menu -->
+    <div class="sidebar-menu">
+      <h3>Management</h3>
+      <nav class="admin-nav">
+        <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        <a href="{% url 'admin_management:bus_list' %}" class="nav-item active">
+          <span class="icon">🚌</span> All Buses
+        </a>
+        <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
+          <span class="icon">➕</span> Add New Bus
+        </a>
+      </nav>
+    </div>
+
+    <!-- Push footer to bottom -->
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
+      </div>
+      <a href="{% url 'dashboard:landing' %}" class="btn-footer btn-landing">User Dashboard</a>
+      <a href="{% url 'login:logout' %}" class="btn-footer btn-logout">Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>Bus Details — {{ bus.plate_number }}</h1>
+      <div class="header-right">
+        <div id="online-status" class="status-indicator" title="Connection status" style="display:none;">Online</div>
+        <div class="time-display">
+          <div id="current-time" class="time">--:--:--</div>
+          <div id="current-date" class="date">---</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <!-- Bus Details Card -->
+      <section class="detail-section">
+        <div class="detail-card">
+          <div class="detail-header">
+            <h2>Bus Information</h2>
+            <div class="detail-actions">
+              <a href="{% url 'admin_management:bus_edit' bus.id %}" class="btn btn-warning">✏️ Edit</a>
+              <a href="{% url 'admin_management:bus_delete' bus.id %}" class="btn btn-danger">🗑️ Delete</a>
+            </div>
+          </div>
+
+          <div class="detail-content">
+            <div class="detail-grid">
+              <!-- Basic Information -->
+              <div class="detail-group">
+                <h3>Basic Information</h3>
+                <div class="detail-item">
+                  <label>Plate Number</label>
+                  <value>{{ bus.plate_number }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Driver Name</label>
+                  <value>{{ bus.driver_name }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Route</label>
+                  <value>
+                    <span class="badge badge-route">{{ bus.get_route_display }}</span>
+                  </value>
+                </div>
+                <div class="detail-item">
+                  <label>Status</label>
+                  <value>
+                    <span class="badge badge-{{ bus.status|lower }}">
+                      {{ bus.get_status_display }}
+                    </span>
+                  </value>
+                </div>
+              </div>
+
+              <!-- Capacity Information -->
+              <div class="detail-group">
+                <h3>Capacity</h3>
+                <div class="detail-item">
+                  <label>Seat Capacity</label>
+                  <value>{{ bus.capacity }} seats</value>
+                </div>
+                <div class="detail-item">
+                  <label>Current Occupancy</label>
+                  <value>{{ bus.occupancy }} / {{ bus.capacity }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Occupancy Rate</label>
+                  <value>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: {{ bus.occupancy|floatformat:0 }}%"></div>
+                    </div>
+                    <span>{{ bus.occupancy|add:0|mul:100|div:bus.capacity|floatformat:1 }}%</span>
+                  </value>
+                </div>
+              </div>
+
+              <!-- Location Information -->
+              <div class="detail-group">
+                <h3>Location & Route</h3>
+                <div class="detail-item">
+                  <label>Current Location</label>
+                  <value>{{ bus.current_location }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Next Stop</label>
+                  <value>{{ bus.next_stop }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>ETA</label>
+                  <value>{{ bus.eta_minutes }} minutes</value>
+                </div>
+              </div>
+
+              <!-- Traffic & Status -->
+              <div class="detail-group">
+                <h3>Traffic & Conditions</h3>
+                <div class="detail-item">
+                  <label>Traffic Condition</label>
+                  <value>
+                    <span class="badge badge-traffic badge-{{ bus.traffic_condition|lower }}">
+                      {{ bus.traffic_condition }}
+                    </span>
+                  </value>
+                </div>
+                <div class="detail-item">
+                  <label>Last Updated</label>
+                  <value>{{ bus.last_updated|date:"Y-m-d H:i:s" }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Created</label>
+                  <value>{{ bus.created_at|date:"Y-m-d H:i:s" }}</value>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Back Button -->
+      <section class="back-section">
+        <a href="{% url 'admin_management:bus_list' %}" class="btn btn-secondary">← Back to Bus List</a>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

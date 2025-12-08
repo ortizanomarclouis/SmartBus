@@ -26,7 +26,8 @@ INSTALLED_APPS = [
     'core',       # NEW
     'login',      # NEW
     'register',   # NEW
-    'dashboard', # NEW
+    'dashboard',  # NEW
+    'admin_management',  # NEW - Admin Bus Management
 ]
 
 MIDDLEWARE = [

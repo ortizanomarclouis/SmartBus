@@ -17,4 +17,8 @@ urlpatterns = [
     # 3. AUTHENTICATED CONTENT
     # All authenticated routes start with 'app/'
     path('app/', include('dashboard.urls')),
+    
+    # 4. ADMIN MANAGEMENT
+    # Admin panel for managing buses
+    path('admin-panel/', include('admin_management.urls')),
 ]
