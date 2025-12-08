@@ -245,6 +245,8 @@ window.addEventListener('load',()=>{
     startBusCountdown();
     renderBusTable(appState.buses);
     updateNotificationUI();
+    // Auto-refresh buses every 5 seconds to show admin changes immediately
+    startAutoRefreshBuses();
   }catch(err){
     console.error("Initialization error:",err);
     showAlert("Failed to initialize dashboard","error");
@@ -266,6 +268,50 @@ function populateLocationSelects(){
 }
 
 function generateBusData(){
+  appState.buses=[];
+  // Fetch real buses from the API
+  fetch('/app/api/buses/')
+    .then(response => response.json())
+    .then(data => {
+      if(data.success && data.buses && data.buses.length > 0) {
+        // Map database buses to appState format
+        appState.buses = data.buses.map((bus, index) => {
+          // Get next location from LOCATIONS or use default
+          const curIdx = LOCATIONS.indexOf(bus.current_location);
+          const nextLocation = curIdx >= 0 ? LOCATIONS[(curIdx + 1) % LOCATIONS.length] : bus.next_stop || 'Unknown';
+          const etaSeconds = (bus.eta_minutes || 5) * 60;
+          
+          return {
+            id: bus.id || index,
+            plateNumber: bus.plate_number,
+            driver: bus.driver_name,
+            currentLocation: bus.current_location,
+            nextLocation: bus.next_stop || nextLocation,
+            etaSeconds: etaSeconds,
+            originalEtaSeconds: etaSeconds,
+            status: bus.status || 'Occupiable',
+            occupancy: bus.occupancy || 0,
+            trafficCondition: bus.traffic_condition || 'Normal',
+            totalCapacity: 25
+          };
+        });
+        console.log(`Loaded ${appState.buses.length} buses from database`);
+        renderBusTable(appState.buses);
+        updateBusCount(appState.buses.length);
+        updateNotificationUI();
+      } else {
+        console.warn('No buses found in database, falling back to demo data');
+        generateDemoBusData();
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching buses:', error);
+      console.warn('Using demo data as fallback');
+      generateDemoBusData();
+    });
+}
+
+function generateDemoBusData(){
   appState.buses=[];
   for(let i=0;i<50;i++){
     const curIdx=Math.floor(Math.random()*LOCATIONS.length);
@@ -290,6 +336,76 @@ function generateBusData(){
       totalCapacity:25
     });
   }
+}
+
+/* ===========================
+   Auto-refresh buses from server
+   =========================== */
+
+function startAutoRefreshBuses() {
+  // Refresh buses every 5 seconds to show admin changes
+  setInterval(() => {
+    refreshBusesFromServer();
+  }, 5000);
+}
+
+function refreshBusesFromServer() {
+  fetch('/app/api/buses/')
+    .then(response => response.json())
+    .then(data => {
+      if(data.success && data.buses && data.buses.length > 0) {
+        const newBuses = data.buses.map((bus, index) => {
+          const curIdx = LOCATIONS.indexOf(bus.current_location);
+          const nextLocation = curIdx >= 0 ? LOCATIONS[(curIdx + 1) % LOCATIONS.length] : bus.next_stop || 'Unknown';
+          const etaSeconds = (bus.eta_minutes || 5) * 60;
+          
+          return {
+            id: bus.id || index,
+            plateNumber: bus.plate_number,
+            driver: bus.driver_name,
+            currentLocation: bus.current_location,
+            nextLocation: bus.next_stop || nextLocation,
+            etaSeconds: etaSeconds,
+            originalEtaSeconds: etaSeconds,
+            status: bus.status || 'Occupiable',
+            occupancy: bus.occupancy || 0,
+            trafficCondition: bus.traffic_condition || 'Normal',
+            totalCapacity: 25
+          };
+        });
+        
+        // Check if bus count changed (admin added/deleted a bus)
+        const oldCount = appState.buses.length;
+        const newCount = newBuses.length;
+        
+        // Update buses
+        appState.buses = newBuses;
+        
+        // If count changed, show notification and re-render
+        if(oldCount !== newCount) {
+          if(newCount > oldCount) {
+            showMiniNotification(`${newCount - oldCount} new bus(es) added by admin!`);
+          } else {
+            showMiniNotification(`${oldCount - newCount} bus(es) removed by admin!`);
+          }
+        }
+        
+        // Re-render the table with current filters
+        if(document.getElementById('search-input').value.trim() || 
+           document.getElementById('filter-status').value ||
+           document.getElementById('filter-location').value) {
+          // Keep filters applied
+          filterAndRenderBuses();
+        } else {
+          // No filters, just re-render
+          renderBusTable(appState.buses);
+          updateBusCount(appState.buses.length);
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error refreshing buses:', error);
+    });
 }
 
 /* ===========================

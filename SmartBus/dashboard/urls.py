@@ -8,4 +8,7 @@ urlpatterns = [
     path('landing/', views.landing_view, name='landing'),
     # Maps /dashboard/ to dashboard_view
     path('dashboard/', views.dashboard_view, name='dashboard'),
+    # API endpoint for getting buses
+    path('api/buses/', views.get_buses_api, name='get_buses_api'),
+    path('profile/', views.profile_view, name='profile'),
 ]
