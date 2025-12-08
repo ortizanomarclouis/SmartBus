@@ -17,7 +17,6 @@
     <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
     <div class="system-status-monitor">Bus Management System</div>
 
-    <!-- Admin Menu -->
     <div class="sidebar-menu">
       <h3>Management</h3>
       <nav class="admin-nav">
@@ -30,10 +29,12 @@
         <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
           <span class="icon">➕</span> Add New Bus
         </a>
+        <a href="{% url 'admin_management:user_list' %}" class="nav-item">
+          <span class="icon">👥</span> Manage Users
+        </a>
       </nav>
     </div>
 
-    <!-- Push footer to bottom -->
     <div class="sidebar-footer">
       <div class="user-info">
         <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
@@ -56,7 +57,6 @@
     </header>
 
     <main class="content-area">
-      <!-- Bus Details Card -->
       <section class="detail-section">
         <div class="detail-card">
           <div class="detail-header">
@@ -69,7 +69,6 @@
 
           <div class="detail-content">
             <div class="detail-grid">
-              <!-- Basic Information -->
               <div class="detail-group">
                 <h3>Basic Information</h3>
                 <div class="detail-item">
@@ -96,7 +95,6 @@
                 </div>
               </div>
 
-              <!-- Capacity Information -->
               <div class="detail-group">
                 <h3>Capacity</h3>
                 <div class="detail-item">
@@ -111,14 +109,13 @@
                   <label>Occupancy Rate</label>
                   <value>
                     <div class="progress-bar">
-                      <div class="progress-fill" style="width: {{ bus.occupancy|floatformat:0 }}%"></div>
+                      <div class="progress-fill" style="width: {% widthratio bus.occupancy bus.capacity 100 %}%"></div>
                     </div>
-                    <span>{{ bus.occupancy|add:0|mul:100|div:bus.capacity|floatformat:1 }}%</span>
+                    <span>{% widthratio bus.occupancy bus.capacity 100 %}%</span>
                   </value>
                 </div>
               </div>
 
-              <!-- Location Information -->
               <div class="detail-group">
                 <h3>Location & Route</h3>
                 <div class="detail-item">
@@ -135,7 +132,6 @@
                 </div>
               </div>
 
-              <!-- Traffic & Status -->
               <div class="detail-group">
                 <h3>Traffic & Conditions</h3>
                 <div class="detail-item">
@@ -148,7 +144,7 @@
                 </div>
                 <div class="detail-item">
                   <label>Last Updated</label>
-                  <value>{{ bus.last_updated|date:"Y-m-d H:i:s" }}</value>
+                  <value>{{ bus.updated_at|date:"Y-m-d H:i:s" }}</value>
                 </div>
                 <div class="detail-item">
                   <label>Created</label>
@@ -160,7 +156,6 @@
         </div>
       </section>
 
-      <!-- Back Button -->
       <section class="back-section">
         <a href="{% url 'admin_management:bus_list' %}" class="btn btn-secondary">← Back to Bus List</a>
       </section>

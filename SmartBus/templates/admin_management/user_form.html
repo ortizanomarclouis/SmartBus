@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Admin — Edit User</title>
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
+</head>
+<body class="dashboard-body">
+  <div id="message-box" class="message-box"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
+    <div class="sidebar-menu">
+      <h3>Management</h3>
+      <nav class="admin-nav">
+        <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        <a href="{% url 'admin_management:bus_list' %}" class="nav-item">
+          <span class="icon">🚌</span> All Buses
+        </a>
+        <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
+          <span class="icon">➕</span> Add New Bus
+        </a>
+        <a href="{% url 'admin_management:user_list' %}" class="nav-item active">
+          <span class="icon">👥</span> Manage Users
+        </a>
+      </nav>
+    </div>
+    <div class="sidebar-footer">
+      <a href="{% url 'login:logout' %}" class="btn-footer btn-logout">Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>Edit User: {{ edit_user.username }}</h1>
+    </header>
+
+    <main class="content-area">
+      {% if messages %}
+        <div class="messages-section">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <section class="form-section">
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-container">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Username *</label>
+                <input type="text" name="username" class="form-control" value="{{ edit_user.username }}" required>
+              </div>
+              <div class="form-group">
+                <label>Email *</label>
+                <input type="email" name="email" class="form-control" value="{{ edit_user.email }}" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" name="is_admin" {% if is_admin_user %}checked{% endif %}>
+                <span><strong>Grant Admin Privileges</strong> (User can access Admin Dashboard)</span>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success">💾 Save Changes</button>
+              <a href="{% url 'admin_management:user_list' %}" class="btn btn-secondary">❌ Cancel</a>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

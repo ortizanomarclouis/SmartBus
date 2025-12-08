@@ -6,10 +6,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
+from admin_management.models import AdminProfile # Import your AdminProfile model
 
 # Login View 
 def login_view(request):
     if request.user.is_authenticated:
+        # Check existing session for admin status
+        try:
+            if AdminProfile.objects.filter(user=request.user, is_admin=True).exists():
+                return redirect('admin_management:dashboard')
+        except:
+            pass
         return redirect('dashboard:landing')
     
     if request.method == "POST":
@@ -30,6 +37,12 @@ def login_view(request):
             
             if user is not None:
                 login(request, user)
+                try:
+                    if AdminProfile.objects.filter(user=user, is_admin=True).exists():
+                        messages.success(request, f"Welcome Admin, {user.username}!")
+                        return redirect('admin_management:dashboard')
+                except:
+                    pass
                 return redirect('dashboard:landing')
             else:
                 messages.error(request, "Invalid email or password")

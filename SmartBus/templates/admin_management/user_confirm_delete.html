@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SmartBus Admin — Delete Bus</title>
+  <title>SmartBus Admin — Delete User</title>
 
   <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
   <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
@@ -14,26 +14,21 @@
     <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
     <div class="system-status-monitor">Bus Management System</div>
 
-    <!-- Admin Menu -->
     <div class="sidebar-menu">
       <h3>Management</h3>
       <nav class="admin-nav">
         <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
           <span class="icon">📊</span> Dashboard
         </a>
-        <a href="{% url 'admin_management:bus_list' %}" class="nav-item active">
+        <a href="{% url 'admin_management:bus_list' %}" class="nav-item">
           <span class="icon">🚌</span> All Buses
         </a>
-        <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
-          <span class="icon">➕</span> Add New Bus
-        </a>
-        <a href="{% url 'admin_management:user_list' %}" class="nav-item">
-          <span class="icon">👥</span> Manage Users
+        <a href="{% url 'admin_management:user_list' %}" class="nav-item active">
+          <span class="icon">👥</span> Users
         </a>
       </nav>
     </div>
 
-    <!-- Push footer to bottom -->
     <div class="sidebar-footer">
       <div class="user-info">
         <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
@@ -45,28 +40,28 @@
 
   <div class="main-container">
     <header class="header">
-      <h1>Confirm Delete Bus</h1>
+      <h1>Confirm Delete User</h1>
     </header>
 
     <main class="content-area">
       <section class="confirm-section">
         <div class="confirm-card">
           <div class="confirm-icon">⚠️</div>
-          <h2>Delete Bus {{ bus.plate_number }}?</h2>
-          <p>This action cannot be undone. Are you sure you want to delete this bus record?</p>
+          <h2>Delete User "{{ object.username }}"?</h2>
+          <p>This action cannot be undone. The user will lose access immediately.</p>
 
           <div class="bus-summary">
             <div class="summary-item">
-              <label>Plate Number:</label>
-              <strong>{{ bus.plate_number }}</strong>
+              <label>Username:</label>
+              <strong>{{ object.username }}</strong>
             </div>
             <div class="summary-item">
-              <label>Driver:</label>
-              <strong>{{ bus.driver_name }}</strong>
+              <label>Email:</label>
+              <strong>{{ object.email }}</strong>
             </div>
             <div class="summary-item">
-              <label>Route:</label>
-              <strong>{{ bus.get_route_display }}</strong>
+              <label>Date Joined:</label>
+              <strong>{{ object.date_joined|date:"M d, Y" }}</strong>
             </div>
           </div>
 
@@ -74,11 +69,11 @@
             <form method="post" style="display: inline;">
               {% csrf_token %}
               <button type="submit" class="btn btn-danger btn-lg">
-                🗑️ Yes, Delete This Bus
+                🗑️ Yes, Delete User
               </button>
             </form>
-            <a href="{% url 'admin_management:bus_list' %}" class="btn btn-secondary btn-lg">
-              ❌ Cancel
+            <a href="{% url 'admin_management:user_list' %}" class="btn btn-secondary btn-lg">
+              Cancel
             </a>
           </div>
         </div>

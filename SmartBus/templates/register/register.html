@@ -19,6 +19,16 @@
                 <div class="success-message" id="successMessage">
                     Account created successfully! Redirecting to login...
                 </div>
+                
+                {% if messages %}
+                    <div class="messages-container" style="margin-bottom: 20px;">
+                        {% for message in messages %}
+                            <div class="msg {{ message.tags }}" style="padding: 10px; border-radius: 5px; background: #ffdddd; color: #d8000c; border: 1px solid #d8000c;">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
                 <form id="registerForm" method="post" action="">
                     {% csrf_token %}

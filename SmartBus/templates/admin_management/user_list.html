@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Admin — User List</title>
+
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
+  <script defer src="{% static 'js/admin_management/admin.js' %}"></script>
+</head>
+<body class="dashboard-body">
+  <div id="message-box" class="message-box"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
+    <div class="system-status-monitor">Bus Management System</div>
+
+    <div class="sidebar-menu">
+      <h3>Management</h3>
+      <nav class="admin-nav">
+        <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        <a href="{% url 'admin_management:bus_list' %}" class="nav-item">
+          <span class="icon">🚌</span> All Buses
+        </a>
+        <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
+          <span class="icon">➕</span> Add New Bus
+        </a>
+        <a href="{% url 'admin_management:user_list' %}" class="nav-item active">
+          <span class="icon">👥</span> Users
+        </a>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
+      </div>
+      <a href="{% url 'dashboard:landing' %}" class="btn-footer btn-landing">User Dashboard</a>
+      <a href="{% url 'login:logout' %}" class="btn-footer btn-logout">Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>User Management</h1>
+      <div class="header-right">
+        <div class="time-display">
+          <div id="current-time" class="time">--:--:--</div>
+          <div id="current-date" class="date">---</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-area">
+      {% if messages %}
+        <div class="messages-section">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <section class="shuttle-table-section">
+        <div class="table-header">
+          <h2>Registered Users <span id="user-count">({{ total_users }})</span></h2>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="shuttle-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Date Joined</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+                <tr>
+                  <td><strong>{{ user.username }}</strong></td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                    {% if user.is_superuser %}
+                        <span class="badge badge-traffic badge-heavy">Admin</span>
+                    {% else %}
+                        <span class="badge badge-route">User</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                  <td>{{ user.last_login|date:"M d, Y H:i" }}</td>
+                  <td class="action-buttons">
+                    <a href="{% url 'admin_management:user_edit' user.id %}" class="btn-sm btn-warning" title="Edit User">✏️</a>
+                    
+                    {% if not user.is_superuser %}
+                    <a href="{% url 'admin_management:user_delete' user.id %}" class="btn-sm btn-danger" title="Delete User">🗑️</a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center empty-state">
+                    <p>No users found.</p>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
