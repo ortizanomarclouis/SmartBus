@@ -51,7 +51,7 @@ function checkPasswordStrength(password) {
     }
 }
 
-// Handle form submission
+
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     let isValid = true;
 
@@ -61,7 +61,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     const confirmPassword = document.getElementById('registerConfirmPassword').value;
     const agreeTerms = document.getElementById('agreeTerms').checked;
 
-    // Name validation
+ 
     if (name === '') {
         showError('registerName', 'Full name is required');
         isValid = false;
@@ -72,7 +72,6 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         clearError('registerName');
     }
 
-    // Email validation
     if (email === '') {
         showError('registerEmail', 'Email is required');
         isValid = false;
@@ -83,7 +82,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         clearError('registerEmail');
     }
 
-    // Password validation
+   
     if (password === '') {
         showError('registerPassword', 'Password is required');
         isValid = false;
@@ -94,7 +93,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         clearError('registerPassword');
     }
 
-    // Confirm password validation
+    
     if (confirmPassword === '') {
         showError('registerConfirmPassword', 'Please confirm your password');
         isValid = false;
@@ -105,7 +104,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         clearError('registerConfirmPassword');
     }
 
-    // Terms validation
+  
     if (!agreeTerms) {
         const termsError = document.getElementById('termsError');
         termsError.textContent = 'You must agree to the terms';
@@ -115,13 +114,13 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         document.getElementById('termsError').classList.remove('show');
     }
 
-    // Submit form only if all fields are valid
+   
     if (!isValid) {
-        e.preventDefault(); // stop submission only if invalid
+        e.preventDefault(); 
     } 
 });
 
-// Extra UX events
+
 document.getElementById('registerEmail').addEventListener('blur', function() {
     if (this.value.trim() && !validateEmail(this.value)) {
         showError('registerEmail', 'Please enter a valid email');
