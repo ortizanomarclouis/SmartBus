@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBus - Welcome</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="{% static 'css/core/public_landing.css' %}" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="{% url 'core:public_landing' %}">SmartBus Web+</a>
+            <nav class="nav">
+                <ul class="nav-auth-list">
+                    <li><a href="{% url 'login:login' %}" class="btn btn-secondary">Login</a></li>
+                    <li><a href="{% url 'register:register' %}" class="btn btn-primary">Register</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <canvas id="threejs-canvas"></canvas>
+        <div class="container hero-content-wrapper">
+            <div class="hero-copy">
+                <h1>Real-Time Transit, Built for Modern Campuses.</h1>
+                <p>Know where your ride is. Track buses live, get real-time ETAs, and never miss a stop again. Join SmartBus Web+ and travel smarter today.</p>
+                <div class="hero-actions">
+                    <a href="{% url 'register:register' %}" class="btn btn-primary">Get Started Today</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>© 2025 SmartBus Web+ • Built for campus mobility • Version 1.0</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/core/public_landing.js' %}"></script>
+</body>
+</html>

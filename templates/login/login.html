@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+   <link rel="stylesheet" type="text/css" href="{% static 'css/login/login.css' %}">
+   <script src="{% static 'js/login/login.js' %}"></script>
+
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div id="loginPage" class="page active">
+                <h1>SmartBus Web+</h1>     
+                <p class="subtitle">Sign in to your account</p>
+
+                <form id="loginForm" method="post" action="">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" name="email" placeholder="Enter your email" required>
+                        <span class="error-message" id="loginEmailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+                        <span class="password-toggle" onclick="togglePassword('loginPassword')">👁️</span>
+                        <span class="error-message" id="loginPasswordError"></span>
+                    </div>
+
+                    <button type="submit" class="btn">Sign In</button>
+                </form>
+
+                <div class="switch-page">
+                    Don't have an account? 
+                    <a href="{% url 'register:register' %}">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

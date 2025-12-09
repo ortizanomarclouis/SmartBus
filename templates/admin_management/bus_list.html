@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Admin — Bus List</title>
+
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
+  <script defer src="{% static 'js/admin_management/admin.js' %}"></script>
+</head>
+<body class="dashboard-body">
+  <div id="message-box" class="message-box"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
+    <div class="system-status-monitor">Bus Management System</div>
+
+    <!-- Admin Menu -->
+    <div class="sidebar-menu">
+      <h3>Management</h3>
+      <nav class="admin-nav">
+        <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
+          <span class="icon"></span> Dashboard
+        </a>
+        <a href="{% url 'admin_management:bus_list' %}" class="nav-item active">
+          <span class="icon"></span> All Buses
+        </a>
+        <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
+          <span class="icon"></span> Add New Bus
+        </a>
+        <a href="{% url 'admin_management:user_list' %}" class="nav-item">
+          <span class="icon"></span> Manage Users
+        </a>
+      </nav>
+    </div>
+
+    <!-- Push footer to bottom -->
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
+      </div>
+      <a href="{% url 'dashboard:dashboard' %}" class="btn-footer btn-landing">User Dashboard</a>
+      <a href="{% url 'login:logout' %}" class="btn-footer btn-logout">Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>Bus Management — List All Buses</h1>
+      <div class="header-right">
+        <div id="online-status" class="status-indicator" title="Connection status" style="display:none;">Online</div>
+        <div class="time-display">
+          <div id="current-time" class="time">--:--:--</div>
+          <div id="current-date" class="date">---</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <!-- Display Messages -->
+      {% if messages %}
+        <div class="messages-section">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Search and Filter Section -->
+      <section class="search-filter-section">
+        <div class="search-filter-container">
+          <form method="get" class="filter-form">
+            <div class="search-bar-wrapper">
+              <span class="search-icon">🔍</span>
+              <input 
+                type="text" 
+                name="search" 
+                class="search-input" 
+                placeholder="Search by plate, driver, or route"
+                value="{{ search_query }}"
+              />
+              {% if search_query %}
+                <a href="{% url 'admin_management:bus_list' %}" class="search-clear-btn">✕</a>
+              {% endif %}
+            </div>
+
+            <div class="filter-controls">
+              <select name="status" class="filter-select">
+                <option value="">All Status</option>
+                {% for value, label in status_choices %}
+                  <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+
+              <select name="route" class="filter-select">
+                <option value="">All Routes</option>
+                {% for value, label in route_choices %}
+                  <option value="{{ value }}" {% if route_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+
+              <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Add New Bus Button -->
+      <section class="action-section">
+        <a href="{% url 'admin_management:bus_create' %}" class="btn btn-success">
+          <span class="icon"></span> Add New Bus
+        </a>
+      </section>
+
+      <!-- Buses Table Section -->
+      <section class="shuttle-table-section">
+        <div class="table-header">
+          <h2>All Buses <span id="bus-count">({{ buses|length }})</span></h2>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="shuttle-table">
+            <thead>
+              <tr>
+                <th>Plate No</th>
+                <th>Driver Name</th>
+                <th>Route</th>
+                <th>Current Location</th>
+                <th>Status</th>
+                <th>Occupancy</th>
+                <th>ETA</th>
+                <th>Traffic</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bus-tbody">
+              {% for bus in buses %}
+                <tr class="bus-row" data-bus-id="{{ bus.id }}">
+                  <td><strong>{{ bus.plate_number }}</strong></td>
+                  <td>{{ bus.driver_name }}</td>
+                  <td><span class="badge badge-route">{{ bus.get_route_display }}</span></td>
+                  <td>{{ bus.current_location }}</td>
+                  <td>
+                    <span class="badge badge-{{ bus.status|lower }}">
+                      {{ bus.get_status_display }}
+                    </span>
+                  </td>
+                  <td>{{ bus.occupancy }}/{{ bus.capacity }}</td>
+                  <td>{{ bus.eta_minutes }} min</td>
+                  <td>
+                    <span class="badge badge-traffic badge-{{ bus.traffic_condition|lower }}">
+                      {{ bus.traffic_condition }}
+                    </span>
+                  </td>
+                  <td class="action-buttons">
+                    <a href="{% url 'admin_management:bus_detail' bus.id %}" class="btn-sm btn-info" title="View">VIEW</a>
+                    <a href="{% url 'admin_management:bus_edit' bus.id %}" class="btn-sm btn-warning" title="Edit">EDIT</a>
+                    <a href="{% url 'admin_management:bus_delete' bus.id %}" class="btn-sm btn-danger" title="Delete">DELETE</a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="9" class="text-center empty-state">
+                    <div class="empty-icon"></div>
+                    <p>No buses found. <a href="{% url 'admin_management:bus_create' %}">Create the first one.</a></p>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

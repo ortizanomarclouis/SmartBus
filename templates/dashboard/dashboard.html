@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Web+ — Dashboard</title>
+
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <script defer src="{% static 'js/dashboard/dashboard.js' %}"></script>
+</head>
+<body class="dashboard-body">
+  <div id="message-box" class="message-box"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Web+</h2></div>
+    {% if request.user.is_superuser %}
+    <div style="padding: 10px 20px; text-align: center;">
+        <a href="{% url 'admin_management:dashboard' %}" class="btn" style="background-color: #fbbf24; color: black; display: block; padding: 10px; border-radius: 8px; font-weight: bold; text-decoration: none; border: 2px solid #b45309;">
+            Admin Panel
+        </a>
+    </div>
+    {% endif %}
+    <div class="system-status-monitor">Real-Time Bus Tracker for Cebu Student Commuters</div>
+
+   <!-- Favorite Routes section -->
+<div class="sidebar-favorites">
+  <h3>Favorite Routes</h3>
+  <button id="add-favorite-route" class="btn-add-favorite">+ Add Current Route</button>
+  <div id="favorite-routes-list">
+    <!-- Favorite buttons will be injected here -->
+  </div>
+</div>
+
+
+    <!-- Push footer to bottom -->
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
+      </div>
+      <a href="{% url 'dashboard:landing' %}" class="btn-footer btn-landing">Go Back Home</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>SmartBus Operations Dashboard</h1>
+      <div class="header-right">
+        <div id="online-status" class="status-indicator" title="Connection status" style="display:none;">Online</div>
+        <div class="time-display">
+          <div id="current-time" class="time">--:--:--</div>
+          <div id="current-date" class="date">---</div>
+        </div>
+
+        <div class="notification-container">
+          <button id="notification-bell" class="notification-btn" aria-label="Notifications">
+            <span class="bell-icon">🔔</span>
+            <span id="notification-badge" class="notification-badge" style="display:none;">0</span>
+          </button>
+
+          <div id="notification-dropdown" class="notification-dropdown">
+            <div class="notification-header">
+              <h3>Notifications</h3>
+              <button id="clear-notifications" class="clear-all-btn" onclick="clearAllNotifications()">Clear All</button>
+            </div>
+            <div id="notification-list" class="notification-list">
+              <div class="no-notifications">No notifications</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <section class="location-selection-section">
+        <h2>Select Your Route</h2>
+        <div class="location-selector">
+          <div class="location-input-group">
+            <label for="current-location">Current Location</label>
+            <select id="current-location" class="location-select">
+              <option value="">-- Choose Current Location --</option>
+            </select>
+          </div>
+
+          <div class="location-input-group">
+            <label for="destination-location">Destination</label>
+            <select id="destination-location" class="location-select">
+              <option value="">-- Choose Destination --</option>
+            </select>
+          </div>
+
+          <div class="action-item">
+            <button id="find-buses-btn" class="btn-find-buses" onclick="findBuses()">Find Buses</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="search-filter-section">
+        <div class="search-filter-container">
+          <div class="search-bar-wrapper">
+            <span class="search-icon">🔍</span>
+            <input id="search-input" class="search-input" placeholder="Search Plate No, Driver, Location or Next stop" />
+            <button class="search-clear-btn" onclick="clearSearchFilter()">✕</button>
+          </div>
+          <button id="filter-toggle-btn" class="btn-secondary" onclick="toggleAdvancedFilter()">⚙️ Filters</button>
+        </div>
+
+        <div id="advanced-filter-panel" class="advanced-filter-panel" style="display:none;">
+          <select id="filter-status">
+            <option value="">Filter by Status</option>
+            <option value="Occupiable">Occupiable</option>
+            <option value="Fully Occupied">Fully Occupied</option>
+          </select>
+          <select id="filter-location">
+            <option value="">Filter by Location</option>
+          </select>
+          <button onclick="applyFilters()">Apply</button>
+          <button onclick="resetFilters()">Reset</button>
+        </div>
+      </section>
+
+      <div id="traffic-alert" class="traffic-alert" style="display:none;">
+        ⚠️ Heavy Traffic: Expect slower ETA updates
+      </div>
+
+      <section class="shuttle-table-section">
+        <div class="table-header">
+          <h2>Available Buses <span id="shuttle-count">(50)</span></h2>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="shuttle-table">
+            <thead>
+              <tr>
+                <th>Plate No</th>
+                <th>Driver Name</th>
+                <th>Current Location</th>
+                <th>Next Stop</th>
+                <th>ETA</th>
+                <th>Status</th>
+                <th>Occupancy</th>
+                <th>Traffic</th>
+              </tr>
+            </thead>
+            <tbody id="bus-status-tbody">
+              <tr><td colspan="8" class="loading-row">Loading buses...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

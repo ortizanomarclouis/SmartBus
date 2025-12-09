@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartBus Admin — Delete User</title>
+
+  <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>SmartBus Admin</h2></div>
+    <div class="system-status-monitor">Bus Management System</div>
+
+    <div class="sidebar-menu">
+      <h3>Management</h3>
+      <nav class="admin-nav">
+        <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
+          <span class="icon"></span> Dashboard
+        </a>
+        <a href="{% url 'admin_management:bus_list' %}" class="nav-item">
+          <span class="icon"></span> All Buses
+        </a>
+        <a href="{% url 'admin_management:user_list' %}" class="nav-item active">
+          <span class="icon"></span> Users
+        </a>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="status-message" class="status-badge"><span class="status-icon">✓</span>Active</div>
+      </div>
+      <a href="{% url 'dashboard:dashboard' %}" class="btn-footer btn-landing">User Dashboard</a>
+      <a href="{% url 'login:logout' %}" class="btn-footer btn-logout">Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>Confirm Delete User</h1>
+    </header>
+
+    <main class="content-area">
+      <section class="confirm-section">
+        <div class="confirm-card">
+          <div class="confirm-icon"></div>
+          <h2>Delete User "{{ object.username }}"?</h2>
+          <p>This action cannot be undone. The user will lose access immediately.</p>
+
+          <div class="bus-summary">
+            <div class="summary-item">
+              <label>Username:</label>
+              <strong>{{ object.username }}</strong>
+            </div>
+            <div class="summary-item">
+              <label>Email:</label>
+              <strong>{{ object.email }}</strong>
+            </div>
+            <div class="summary-item">
+              <label>Date Joined:</label>
+              <strong>{{ object.date_joined|date:"M d, Y" }}</strong>
+            </div>
+          </div>
+
+          <div class="confirm-actions">
+            <form method="post" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-lg">
+                 Yes, Delete User
+              </button>
+            </form>
+            <a href="{% url 'admin_management:user_list' %}" class="btn btn-secondary btn-lg">
+              Cancel
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
