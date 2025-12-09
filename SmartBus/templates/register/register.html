@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-   <link rel="stylesheet" type="text/css" href="{% static 'css/register/register.css' %}">
-
+    <link rel="stylesheet" type="text/css" href="{% static 'css/register.css' %}">
 </head>
 <body>
     <div class="container">
@@ -20,6 +19,7 @@
                     Account created successfully! Redirecting to login...
                 </div>
 
+       
                 <form id="registerForm" method="post" action="">
                     {% csrf_token %}
 
@@ -38,7 +38,7 @@
                     <div class="form-group">
                         <label for="registerPassword">Password</label>
                         <input type="password" id="registerPassword" name="password1" placeholder="Create a password">
-                        <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')" aria-label="Toggle password visibility">👁️</button>
+                        <span class="password-toggle" onclick="togglePassword('registerPassword')">👁️</span>
                         <div class="password-strength">
                             <div class="password-strength-bar" id="strengthBar"></div>
                         </div>
@@ -48,7 +48,7 @@
                     <div class="form-group">
                         <label for="registerConfirmPassword">Confirm Password</label>
                         <input type="password" id="registerConfirmPassword" name="password2" placeholder="Confirm your password">
-                        <button type="button" class="password-toggle" onclick="togglePassword('registerConfirmPassword')" aria-label="Toggle confirm password visibility">👁️</button>
+                        <span class="password-toggle" onclick="togglePassword('registerConfirmPassword')">👁️</span>
                         <span class="error-message" id="registerConfirmPasswordError"></span>
                     </div>
 
@@ -58,7 +58,7 @@
                     </div>
                     <span class="error-message" id="termsError"></span>
 
-                    <button type="submit" class="btn" data-login-url="{% url 'login:login' %}">Create Account</button>
+                    <button type="submit" class="btn" data-login-url="{% url 'login' %}">Create Account</button>
                 </form>
 
                 <div class="divider">
@@ -66,13 +66,12 @@
                 </div>
 
                 <div class="switch-page">
-                    Already have an account? <a href="{% url 'login:login' %}">Sign In</a>
+                    Already have an account? <a href="{% url 'login' %}">Sign In</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="{% static 'js/register/register.js' %}"></script>
-
+    <script src="{% static 'js/register.js' %}"></script>
 </body>
 </html>

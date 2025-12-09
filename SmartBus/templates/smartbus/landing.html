@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartBus - Home</title>
+
+ 
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  
+    <script src="{% static 'js/landing.js' %}"></script>
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+ 
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}" />
+</head>
+<body>
+
+
+    <header class="site-header py-4 border-b border-gray-100 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <a class="text-xl font-bold text-primary-green" href="{% url 'public_landing' %}">SmartBus Web+</a>
+            <nav class="flex space-x-4 items-center">
+                <a class="text-gray-700 hover:text-primary-blue transition" href="#">Features</a>
+                <a class="text-gray-700 hover:text-primary-blue transition" href="#">How it Works</a>
+                <a class="text-gray-700 hover:text-primary-blue transition" href="#">Operator</a>
+                <a class="text-gray-700 hover:text-primary-blue transition" href="#">Contact</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">Dashboard</a>
+                <a href="{% url 'logout' %}" class="px-3 py-1 text-sm font-semibold rounded-full border border-dark-gray text-dark-gray hover:bg-gray-100 transition duration-150">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+
+    <section class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-inner">
+            <div class="hero-copy">
+                <h1>Know when your campus bus arrives</h1>
+                <p>GPS tracking combined with commuter updates. Reduce waiting time. Ride smarter.</p>
+                <div class="hero-actions flex space-x-4">
+                    <a href="#map-preview" class="btn btn-primary">View Map</a>
+                    <a href="#features" class="btn btn-ghost">How it works</a>
+                </div>
+            </div>
+            <div class="map-placeholder shadow-xl" id="map-preview">
+                Map preview
+            </div>
+        </div>
+    </section>
+
+
+    <section id="features" class="py-16 bg-app-bg text-light-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="section-title mx-auto text-light-gray">Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+                <div class="feature-card">
+                
+                    <svg class="card-icon w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724..." /></svg>
+                    <h3 class="text-xl font-semibold mb-2 text-primary-green">GPS</h3>
+                    <p class="text-dark-gray">Real-time tracking to reduce wait times.</p>
+                </div>
+                <div class="feature-card">
+                    <svg class="card-icon w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="..." /></svg>
+                    <h3 class="text-xl font-semibold mb-2 text-primary-green">Crowd updates</h3>
+                    <p class="text-dark-gray">Report and view bus crowd levels.</p>
+                </div>
+                <div class="feature-card">
+                    <svg class="card-icon w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="..." /></svg>
+                    <h3 class="text-xl font-semibold mb-2 text-primary-green">Responsive Design</h3>
+                    <p class="text-dark-gray">Mobile and desktop support built-in.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="py-6 text-center text-xs bg-white text-dark-gray">
+        <p>© 2025 SmartBus Web+ • Built for campus mobility</p>
+    </footer>
+
+</body>
+</html>
