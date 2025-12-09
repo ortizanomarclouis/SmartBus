@@ -22,16 +22,16 @@
       <h3>Management</h3>
       <nav class="admin-nav">
         <a href="{% url 'admin_management:dashboard' %}" class="nav-item active">
-          <span class="icon">📊</span> Dashboard
+          <span class="icon"></span> Dashboard
         </a>
         <a href="{% url 'admin_management:bus_list' %}" class="nav-item">
-          <span class="icon">🚌</span> All Buses
+          <span class="icon"></span> All Buses
         </a>
         <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
-          <span class="icon">➕</span> Add New Bus
+          <span class="icon"></span> Add New Bus
         </a>
         <a href="{% url 'admin_management:user_list' %}" class="nav-item">
-          <span class="icon">👥</span> Manage Users
+          <span class="icon"></span> Manage Users
         </a>
       </nav>
     </div>
@@ -73,7 +73,7 @@
       <!-- Statistics Section -->
       <section class="stats-section">
         <div class="stat-card">
-          <div class="stat-icon">🚌</div>
+          <div class="stat-icon"></div>
           <div class="stat-info">
             <div class="stat-number" id="total-buses">{{ total_buses }}</div>
             <div class="stat-label">Total Buses</div>
@@ -89,20 +89,14 @@
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon">🔧</div>
+          <div class="stat-icon"></div>
           <div class="stat-info">
             <div class="stat-number" id="maintenance-buses">{{ maintenance_buses }}</div>
             <div class="stat-label">Maintenance</div>
           </div>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-icon">📊</div>
-          <div class="stat-info">
-            <div class="stat-number" id="avg-occupancy">--</div>
-            <div class="stat-label">Avg Occupancy</div>
-          </div>
-        </div>
+        
       </section>
 
       <!-- Quick Actions -->
@@ -110,10 +104,10 @@
         <h2>Quick Actions</h2>
         <div class="action-buttons">
           <a href="{% url 'admin_management:bus_create' %}" class="btn btn-primary">
-            <span class="icon">➕</span> Add New Bus
+            <span class="icon"></span> Add New Bus
           </a>
           <a href="{% url 'admin_management:bus_list' %}" class="btn btn-secondary">
-            <span class="icon">📋</span> View All Buses
+            <span class="icon"></span> View All Buses
           </a>
         </div>
       </section>
@@ -150,9 +144,9 @@
                   </td>
                   <td>{{ bus.occupancy }}/{{ bus.capacity }}</td>
                   <td>
-                    <a href="{% url 'admin_management:bus_detail' bus.id %}" class="btn-sm btn-info" title="View Details">👁️</a>
-                    <a href="{% url 'admin_management:bus_edit' bus.id %}" class="btn-sm btn-warning" title="Edit">✏️</a>
-                    <a href="{% url 'admin_management:bus_delete' bus.id %}" class="btn-sm btn-danger" title="Delete">🗑️</a>
+                    <a href="{% url 'admin_management:bus_detail' bus.id %}" class="btn-sm btn-info" title="View Details">VIEW</a>
+                    <a href="{% url 'admin_management:bus_edit' bus.id %}" class="btn-sm btn-warning" title="Edit">EDIT</a>
+                    <a href="{% url 'admin_management:bus_delete' bus.id %}" class="btn-sm btn-danger" title="Delete">DELETE</a>
                   </td>
                 </tr>
               {% empty %}

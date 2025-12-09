@@ -55,6 +55,7 @@ def bus_api(request):
                 'occupancy': bus.occupancy,
                 'capacity': bus.capacity,
                 'current_location': bus.current_location,
+                'next_stop': bus.next_stop,  # ← ADD THIS LINE
                 'eta_minutes': bus.eta_minutes,
                 'traffic_condition': bus.traffic_condition,
             })

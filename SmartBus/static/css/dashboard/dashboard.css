@@ -1089,3 +1089,53 @@ html, body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Favorite Route Item */
+.favorite-route-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    background-color: linear-gradient(135deg, #0066CC 0%, #00C853 100%);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-size: 0.9rem;
+}
+
+/* Route text */
+.favorite-route-item .route-path {
+    font-weight: 500;
+    color: #ffffff;
+}
+
+/* Buttons container */
+.favorite-route-item button {
+    margin-left: 5px;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Use button */
+.favorite-route-item .btn-use-route {
+    background-color: #10b981;
+    color: white;
+}
+
+.favorite-route-item .btn-use-route:hover {
+    background-color: #059669;
+}
+
+/* Delete button */
+.favorite-route-item .btn-delete-route {
+    background-color: #ef4444;
+    color: white;
+}
+
+.favorite-route-item .btn-delete-route:hover {
+    background-color: #b91c1c;
+}

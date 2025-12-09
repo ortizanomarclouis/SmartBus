@@ -9,6 +9,11 @@
   <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
   <link rel="stylesheet" href="{% static 'css/admin_management/admin.css' %}">
   <script defer src="{% static 'js/admin_management/admin.js' %}"></script>
+
+  <script>
+  const BUS_STATS_URL = "{% url 'admin_management:bus_stats' %}";
+</script>
+
 </head>
 <body class="dashboard-body">
   <div id="message-box" class="message-box"></div>
@@ -21,16 +26,16 @@
       <h3>Management</h3>
       <nav class="admin-nav">
         <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
-          <span class="icon">📊</span> Dashboard
+          <span class="icon"></span> Dashboard
         </a>
         <a href="{% url 'admin_management:bus_list' %}" class="nav-item active">
-          <span class="icon">🚌</span> All Buses
+          <span class="icon"></span> All Buses
         </a>
         <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
-          <span class="icon">➕</span> Add New Bus
+          <span class="icon"></span> Add New Bus
         </a>
         <a href="{% url 'admin_management:user_list' %}" class="nav-item">
-          <span class="icon">👥</span> Manage Users
+          <span class="icon"></span> Manage Users
         </a>
       </nav>
     </div>
@@ -106,14 +111,17 @@
                   <value>{{ bus.occupancy }} / {{ bus.capacity }}</value>
                 </div>
                 <div class="detail-item">
-                  <label>Occupancy Rate</label>
-                  <value>
-                    <div class="progress-bar">
-                      <div class="progress-fill" style="width: {% widthratio bus.occupancy bus.capacity 100 %}%"></div>
-                    </div>
-                    <span>{% widthratio bus.occupancy bus.capacity 100 %}%</span>
-                  </value>
-                </div>
+  <label>Occupancy Rate</label>
+  <value>
+    {% widthratio bus.occupancy bus.capacity 100 as occ_percent %}
+<div class="progress-bar">
+  <div class="progress-fill" data-width="{{ occ_percent }}"></div>
+</div>
+<span>{{ occ_percent }}%</span>
+
+  </value>
+</div>
+
               </div>
 
               <div class="detail-group">

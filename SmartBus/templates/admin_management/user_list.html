@@ -21,16 +21,16 @@
       <h3>Management</h3>
       <nav class="admin-nav">
         <a href="{% url 'admin_management:dashboard' %}" class="nav-item">
-          <span class="icon">📊</span> Dashboard
+          <span class="icon"></span> Dashboard
         </a>
         <a href="{% url 'admin_management:bus_list' %}" class="nav-item">
-          <span class="icon">🚌</span> All Buses
+          <span class="icon"></span> All Buses
         </a>
         <a href="{% url 'admin_management:bus_create' %}" class="nav-item">
-          <span class="icon">➕</span> Add New Bus
+          <span class="icon"></span> Add New Bus
         </a>
         <a href="{% url 'admin_management:user_list' %}" class="nav-item active">
-          <span class="icon">👥</span> Users
+          <span class="icon"></span> Users
         </a>
       </nav>
     </div>
@@ -98,10 +98,10 @@
                   <td>{{ user.date_joined|date:"M d, Y" }}</td>
                   <td>{{ user.last_login|date:"M d, Y H:i" }}</td>
                   <td class="action-buttons">
-                    <a href="{% url 'admin_management:user_edit' user.id %}" class="btn-sm btn-warning" title="Edit User">✏️</a>
+                    <a href="{% url 'admin_management:user_edit' user.id %}" class="btn-sm btn-warning" title="Edit User">EDIT</a>
                     
                     {% if not user.is_superuser %}
-                    <a href="{% url 'admin_management:user_delete' user.id %}" class="btn-sm btn-danger" title="Delete User">🗑️</a>
+                    <a href="{% url 'admin_management:user_delete' user.id %}" class="btn-sm btn-danger" title="Delete User">DELETE</a>
                     {% endif %}
                   </td>
                 </tr>

@@ -22,4 +22,3 @@ class BusAdmin(admin.ModelAdmin):
             'fields': ('traffic_condition', 'last_updated', 'created_at')
         }),
     )
-

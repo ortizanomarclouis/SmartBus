@@ -18,7 +18,7 @@
         <a class="logo text-3xl font-bold text-green-500" href="{% url 'core:public_landing' %}">SmartBus Web+</a>
         <nav class="flex items-center space-x-4">
             {% if request.user.is_authenticated %}
-                <span class="user-greeting">Hello, {{ username }}</span>
+                
                 {% if request.user.is_superuser %}
                 <a href="{% url 'admin_management:dashboard' %}" class="btn btn-primary">Admin Panel</a>
             {% else %}

@@ -9,7 +9,7 @@ function updateDateTime() {
     hour: '2-digit', 
     minute: '2-digit', 
     second: '2-digit',
-    hour12: false 
+    hour12: true 
   });
   const timeElement = document.getElementById('current-time');
   if (timeElement) timeElement.textContent = timeString;
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Numeric input validation
-  const numericInputs = document.querySelectorAll('input[type="number"]');
+    const numericInputs = document.querySelectorAll('input[type="number"]');
   numericInputs.forEach(input => {
     input.addEventListener('change', function() {
       if (this.min && parseInt(this.value) < parseInt(this.min)) {
@@ -131,7 +131,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+  // ✅ APPLY OCCUPANCY PROGRESS BAR WIDTH
+  document.querySelectorAll('.progress-fill').forEach(bar => {
+    bar.style.width = bar.dataset.width + '%';
+  });
+
 });
+
 
 // Export functions for inline use
 window.confirmDelete = confirmDelete;

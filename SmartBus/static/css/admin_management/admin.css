@@ -107,7 +107,7 @@
 
 /* Quick Actions */
 .quick-actions-section {
-  background: white;
+  background: linear-gradient(135deg, #0055B3 0%, #28A745 100%);
   padding: 2rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -116,7 +116,7 @@
 
 .quick-actions-section h2 {
   margin-bottom: 1rem;
-  color: #333;
+  color: linear-gradient(135deg, #0055B3 0%, #28A745 100%);
 }
 
 .action-buttons {
@@ -137,7 +137,7 @@
 
 /* Form Styles */
 .form-section {
-  background: white;
+  background: linear-gradient(135deg, #0055B3 0%, #28A745 100%);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -189,7 +189,7 @@
 
 /* Search and Filter */
 .search-filter-section {
-  background: white;
+  background: linear-gradient(135deg, #0055B3 0%, #28A745 100%);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -267,7 +267,7 @@
 
 /* Detail Section */
 .detail-section {
-  background: white;
+  background: linear-gradient(135deg, #0055B3 0%, #28A745 100%);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -607,7 +607,7 @@
 
 /* Recent Section */
 .recent-section {
-  background: white;
+  background: linear-gradient(135deg, #0055B3 0%, #28A745 100%);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -707,4 +707,21 @@
   .action-buttons {
     flex-direction: column;
   }
+}
+
+/* Remove button container for shuttle table actions */
+.shuttle-table a.btn-sm {
+  background: none;
+  color: #ffffff; /* view/edit/delete color */
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  text-decoration: underline; /* makes it look like a link */
+}
+
+.shuttle-table a.btn-sm:hover {
+  color: #45a049; /* hover color */
+  background: none;
+  transform: none;
 }
