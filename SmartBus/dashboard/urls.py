@@ -1,14 +1,13 @@
 from django.urls import path
 from . import views
 
-app_name = 'dashboard' # Namespace for reverse lookup: dashboard:dashboard
+app_name = 'dashboard'
 
 urlpatterns = [
-    # Maps /landing/ to landing_view
     path('landing/', views.landing_view, name='landing'),
-    # Maps /dashboard/ to dashboard_view
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    # API endpoint for getting buses
-    path('api/buses/', views.get_buses_api, name='get_buses_api'),
     path('profile/', views.profile_view, name='profile'),
+    
+    # Only ONE path for the API, pointing to the new bus_api
+    path('api/buses/', views.bus_api, name='bus_api'),
 ]

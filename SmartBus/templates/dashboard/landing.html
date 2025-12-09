@@ -19,7 +19,11 @@
         <nav class="flex items-center space-x-4">
             {% if request.user.is_authenticated %}
                 <span class="user-greeting">Hello, {{ username }}</span>
+                {% if request.user.is_superuser %}
+                <a href="{% url 'admin_management:dashboard' %}" class="btn btn-primary">Admin Panel</a>
+            {% else %}
                 <a href="{% url 'dashboard:dashboard' %}" class="btn btn-primary">Dashboard</a>
+            {% endif %}
                 <a href="{% url 'dashboard:profile' %}" class="btn btn-primary">Profile</a>
                 <a href="{% url 'login:logout' %}" class="logout-btn">Logout</a>
             {% else %}
